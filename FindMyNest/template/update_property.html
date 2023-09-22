@@ -176,9 +176,15 @@
 
 
           {%  elif  user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
-          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'propertylist' %}">All Property</a>
+                {% for property_type in property_types %}
+                    <a class="dropdown-item" href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
+                {% endfor %}
+            </div>
+        </li>
           <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li>
@@ -813,7 +819,7 @@
         const first_nameInput = document.getElementById('name');
         const phoneInput = document.getElementById('whatsapp_no');
         const videoInput = document.getElementById('video');
-        const priceInput = document.getElementById('price');
+        const priceInput = document.getElementById('amount');
         const imagesInput = document.getElementById('images');
         const thumbnailInput = document.getElementById('thumbnail');
         const floorPlanInput = document.getElementById('floor_plan');
@@ -841,6 +847,7 @@
         areaInput.addEventListener('blur', function(event) {validateArea();});
         townInput.addEventListener('blur', function(event) { validateTown(); });
         descriptionInput.addEventListener('blur', function(event) { validateDescription(); });
+        priceInput.addEventListener('blur', function(event) { validatePrice(); });
 
 
 
@@ -1015,7 +1022,7 @@
   
 
         function checkall() {
-            if (validateFirst_Name() && validatePhoneNumber() && validateDescription() &&  validateArea() &&  validateTwon() && validateVideoFile() && validateImageFiles() && validateAddress() && validatePrice() && validateState() && validateZipCode()) {
+            if (validateFirst_Name() && validatePrice() && validatePhoneNumber() && validateDescription() &&  validateArea() &&  validateTwon() && validateVideoFile() && validateImageFiles() && validateAddress() && validatePrice() && validateState() && validateZipCode()) {
                 return true;
             }
             return false;

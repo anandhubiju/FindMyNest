@@ -195,7 +195,7 @@
       <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link active" href="{% url 'index' %}">Home</a>
+            <a class="nav-link " href="{% url 'index' %}">Home</a>
           </li>
 
           <li class="nav-item">
@@ -204,7 +204,7 @@
 
           {% if user.is_superuser %}
           <li class="nav-item">
-            <a class="nav-link " href="{% url 'Customer/propertylist' %}">Property</a>
+            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
@@ -215,7 +215,7 @@
 
           {%  elif  user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
+            <a class="nav-link active " href="{% url 'propertylist' %}">Property</a>
           </li>
           <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
@@ -253,7 +253,7 @@
 
     <!-- ======= Intro Single ======= -->
     <section class="intro-single">
-      <div class="container" style="max-width: 1700px;">
+      <div class="container">
         <div class="row">
           <div class="col-md-12 col-lg-8">
             <div class="title-single-box">
@@ -371,7 +371,7 @@
               <div class="col-3">
                   <div class="card my-card">
                       <div class="position-relative"> <!-- Create a relative positioning container -->
-                         <i class="fas fa-heart empty-heart position-absolute top-0 end-0 me-6 mt-3 " id="heart-{{ i.id }}" style="font-size: 1.65em;"></i>
+                         <!-- <i class="fas fa-heart empty-heart position-absolute top-0 end-0 me-6 mt-3 " id="heart-{{ i.id }}" style="font-size: 1.65em;"></i> -->
                           <img src="{{ i.thumbnail.url }}" class="card-img-top" alt="Hollywood Sign on The Hill" width="300" height="300" />
                       </div>
                       <div class="card-body">
@@ -380,11 +380,18 @@
                           <p class="card-text">Bedrooms: {{ i.bedrooms }} | Bathrooms: {{ i.bathrooms }}</p>
                           <p class="card-text">{{ i.address }}, <br>{{ i.Town }} - {{ i.state }}</p>
                           <h5 class="card-title">RS {{ i.price }}</h5><br>
-                          <a href="{% url 'property_single' i.id %}?property_id={{ i.id }}" class="btn btn-success">View Property</a> <a href="{% url 'property_single' i.id %}?property_id={{ i.id }}" class="btn btn-danger add-to-wishlist" style="margin-left: 70px;">Add to Wishlist</a>
+                          <a href="{% url 'property_single' i.id %}?property_id={{ i.id }}" class="btn btn-success">View Property</a> 
 
-                          <!-- Remove from Wishlist button (hidden initially) -->
-                          <a href="{% url 'property_single' i.id %}?property_id={{ i.id }}" class="btn btn-warning remove-from-wishlist" style="margin-left: 70px; display: none;">Remove from Wishlist</a>
+                          {% if user.is_authenticated and user.id == i.user.id %}
+                          <a href="{% url 'delete_property' i.id %}?property_id={{ i.id }}" class="delete-user-link" data-property-id="{{ i.id }}">
+                            <button class="btn btn-danger delete-property-button" style="margin-left: 60px;">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </a>
+                          <a href="{% url 'edit_property' i.id %}?property_id={{ i.id }}" ><button
+                            class="btn btn-primary" style="margin-left: 20px;" ><i class="bi bi-pencil-square"></i></button></a>
                           
+                        {% endif %}
                       </div>
                   </div>
               </div>
@@ -407,17 +414,19 @@
             </div>
             <div class="w-body-a">
               <p class="w-text-a color-text-a">
-                Enim minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip exea commodo consequat duis
-                sed aute irure.
+                FindMyNest is an innovative online platform designed to simplify the process of property management and real estate transactions. 
+                  This digital solution aims to provide users with the convenience of searching for, viewing, and booking properties from the comfort of their own space. 
+                  With a user-friendly interface, FindMyNest allows clients to explore a wide range of properties, 
+                  from residences to offices, and even assists in property-related services like home shifting and home loans.
               </p>
             </div>
             <div class="w-footer-a">
               <ul class="list-unstyled">
                 <li class="color-a">
-                  <span class="color-text-a">Phone .</span> contact@example.com
+                  <span class="color-text-a">Phone .</span> +91 8113825461
                 </li>
                 <li class="color-a">
-                  <span class="color-text-a">Email .</span> +54 356 945234
+                  <span class="color-text-a">Email .</span> findmynest@gmail.com
                 </li>
               </ul>
             </div>
@@ -536,7 +545,7 @@
           <div class="copyright-footer">
             <p class="copyright color-text-a">
               &copy; Copyright
-              <span class="color-a">EstateAgency</span> All Rights Reserved.
+              <span class="color-a">FindMyNest</span> All Rights Reserved.
             </p>
           </div>
           <div class="credits">
@@ -573,62 +582,6 @@
             heart.classList.toggle("filled-heart");
     });
     });
-</script>
-
-
-<script>
-  // Function to add a property to the wishlist
-  function addToWishlist(propertyId) {
-      // Send an AJAX request to add the property to the wishlist
-      // You should replace '/add_to_wishlist/' with the actual URL for adding to the wishlist
-      $.ajax({ 
-          url: `/add_to_wishlist/${propertyId}/`,
-          type: 'POST',
-          data: { 'property_id': propertyId },
-          success: function (data) {
-              if (data.success) {
-                  // Property added to wishlist, toggle buttons
-                  $('.add-to-wishlist').hide();
-                  $('.remove-from-wishlist').show();
-              }
-          }
-      });
-  }
-
-  // Function to remove a property from the wishlist
-  function removeFromWishlist(propertyId) {
-      // Send an AJAX request to remove the property from the wishlist
-      // You should replace '/remove_from_wishlist/' with the actual URL for removing from the wishlist
-      $.ajax({ 
-          url: `/remove_from_wishlist/${propertyId}/`,
-          type: 'POST',
-          data: { 'property_id': propertyId },
-          success: function (data) {
-              if (data.success) {
-                  // Property removed from wishlist, toggle buttons
-                  $('.add-to-wishlist').show();
-                  $('.remove-from-wishlist').hide();
-              }
-          }
-      });
-  }
-
-  // Handle click events for adding and removing from wishlist
-  $(document).ready(function () {
-      const propertyId = 123; // Replace with the actual property ID
-
-      // Click event for "Add to Wishlist" button
-      $('.add-to-wishlist').click(function (e) {
-          e.preventDefault();
-          addToWishlist(propertyId);
-      });
-
-      // Click event for "Remove from Wishlist" button
-      $('.remove-from-wishlist').click(function (e) {
-          e.preventDefault();
-          removeFromWishlist(propertyId);
-      });
-  });
 </script>
 
 

@@ -32,11 +32,14 @@ def index(request):
     # Get the 5 most recently added properties based on the 'created_at' field
     recent_properties = Property.objects.order_by('-created_at')[:5]
     
+    property_types = Property.objects.values_list('property_type', flat=True).distinct()
+    
 
-    return render(request, 'index.html', {'user': request.user, 'recent_properties': recent_properties , 'subscription':subscription})
+    return render(request, 'index.html', {'user': request.user, 'recent_properties': recent_properties , 'subscription':subscription,'property_types': property_types,})
 
 def about(request):
-    return render(request,'about.html')
+    property_types = Property.objects.values_list('property_type', flat=True).distinct()
+    return render(request,'about.html',{'property_types': property_types})
 
 
 def add_subscription(request):

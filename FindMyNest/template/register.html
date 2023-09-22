@@ -116,7 +116,7 @@
 
 
         function validateFirst_Name() {
-          const namePattern = /^[A-Za-z]+$/;
+          const namePattern = /^[A-Za-z ]+$/;
           if (!namePattern.test(first_nameInput.value)) {
             first_nameInput.classList.add('is-invalid');
             first_nameInput.classList.remove('is-valid');

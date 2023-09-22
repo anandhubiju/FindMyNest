@@ -63,8 +63,11 @@
           </li>
 
           {% if user.is_superuser %}
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'propertylist' %}">All Property</a>
+            </div>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
@@ -73,9 +76,15 @@
             </div>
           </li>
           {%  elif  user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
-          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'propertylist' %}">All Property</a>
+                {% for property_type in property_types %}
+                    <a class="dropdown-item" href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
+                {% endfor %}
+            </div>
+        </li>
            <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li> 
@@ -207,15 +216,8 @@
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  Sed porttitor lectus nibh. Cras ultricies ligula sed magna dictum porta. Praesent sapien massa,
-                  convallis a pellentesque
-                  nec, egestas non nisi.
+                  FindMyNest allows users to search for properties online, making it convenient to find their ideal homes or investment properties from the comfort of their own homes. Users can browse property listings, view details such as location, value, and ownership, and make bookings with just a few clicks. This service streamlines the property search process, making it easier for individuals to find and secure their preferred properties.
                 </p>
-              </div>
-              <div class="card-footer-c">
-                <a href="#" class="link-c link-icon">Read more
-                  <span class="bi bi-chevron-right"></span>
-                </a>
               </div>
             </div>
           </div>
@@ -231,15 +233,8 @@
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Mauris blandit
-                  aliquet elit, eget tincidunt
-                  nibh pulvinar a.
+                  FindMyNest can provide users with access to information about different types of loans available in the market, such as home loans, mortgage loans, or construction loans. Users can compare interest rates, loan terms, and eligibility criteria from various lenders. This helps individuals make informed decisions when considering financing options for property purchases.
                 </p>
-              </div>
-              <div class="card-footer-c">
-                <a href="#" class="link-c link-icon">Read more
-                  <span class="bi bi-calendar4-week"></span>
-                </a>
               </div>
             </div>
           </div>
@@ -250,20 +245,13 @@
                   <span class="bi bi-card-checklist"></span>
                 </div>
                 <div class="card-title-c align-self-center">
-                  <h2 class="title-c">Sell</h2>
+                  <h2 class="title-c">Connection</h2>
                 </div>
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  Sed porttitor lectus nibh. Cras ultricies ligula sed magna dictum porta. Praesent sapien massa,
-                  convallis a pellentesque
-                  nec, egestas non nisi.
+                  The platform facilitates connections between property owners, clients, and real estate agents. Users can access property owner contact details after paying a small commission, enabling direct communication for inquiries or negotiations. Additionally, FindMyNest offers agent profiles and contact information, making it easier for clients to choose the right agent to assist them in buying or selling properties. This service enhances transparency and efficiency in property transactions.
                 </p>
-              </div>
-              <div class="card-footer-c">
-                <a href="#" class="link-c link-icon">Read more
-                  <span class="bi bi-chevron-right"></span>
-                </a>
               </div>
             </div>
           </div>
@@ -281,7 +269,7 @@
                 <h2 class="title-a">Latest Properties</h2>
               </div>
               <div class="title-link">
-                <a href="property-grid.html">All Property
+                <a href="{% url 'propertylist' %}">All Property
                   <span class="bi bi-chevron-right"></span>
                 </a>
               </div>
@@ -341,6 +329,9 @@
             {% endfor %}
           </div>
         </div>
+
+
+        
         <div class="propery-carousel-pagination carousel-pagination"></div>
 
       </div>
@@ -618,9 +609,7 @@
                     </div>
                     <div class="testimonials-content">
                       <p class="testimonial-text">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis, cupiditate ea nam praesentium
-                        debitis hic ber quibusdam
-                        voluptatibus officia expedita corpori.
+                        Meet Albert & Erika, a prospective homebuyer who is on the hunt for a new house. He decides to use FindMyNest to simplify his property search and purchase process. Here's how his experience unfolds:
                       </p>
                     </div>
                     <div class="testimonial-author-box">
@@ -646,9 +635,7 @@
                     </div>
                     <div class="testimonials-content">
                       <p class="testimonial-text">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis, cupiditate ea nam praesentium
-                        debitis hic ber quibusdam
-                        voluptatibus officia expedita corpori.
+                        Meet Pablo & Emma, a prospective homebuyer who is on the hunt for a new house. He decides to use FindMyNest to simplify his property search and purchase process. Here's how his experience unfolds:
                       </p>
                     </div>
                     <div class="testimonial-author-box">
@@ -811,7 +798,7 @@
           <div class="copyright-footer">
             <p class="copyright color-text-a">
               &copy; Copyright
-              <span class="color-a">EstateAgency</span> All Rights Reserved.
+              <span class="color-a">FindMyNest</span> All Rights Reserved.
             </p>
           </div>
           <div class="credits">
@@ -821,7 +808,7 @@
             Licensing information: https://bootstrapmade.com/license/
             Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=EstateAgency
           -->
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> -->
           </div>
         </div>
       </div>

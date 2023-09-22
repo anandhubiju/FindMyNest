@@ -25,56 +25,50 @@ from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model()
 
-         
+
 def login(request):
-    if request.method == 'POST':
-         captcha_token = request.POST.get("g-recaptcha-response")
-         cap_url = "https://www.google.com/recaptcha/api/siteverify"
-         cap_secret = "6LcJj44nAAAAADDjTqz0n5e7UM5HRFzMtC54swC3"
-         cap_data = {"secret": cap_secret, "response": captcha_token}
-         
-         
-         cap_server_response = requests.post(url=cap_url, data=cap_data)
-         cap_json = json.loads(cap_server_response.text)
-         
-         if not cap_json['success']:
-              return HttpResponseRedirect(reverse('login') + '?alert=invalid_captcha') 
-         
-         
-         username = request.POST.get('username')
-         password = request.POST.get('password')
-
-         if username and password:
-              user = authenticate(request, username=username, password=password)
-
-              if user is not None:
-                   auth_login(request, user)
-                   
-                   if request.user.user_type == CustomUser.ADMIN:
-                       
-                        return redirect(reverse('admindashboard'))
-                    
-                   elif request.user.user_type == CustomUser.CUSTOMER:
-                       
-                        return redirect(reverse('index'))
-
-                   return redirect('/')
-              else:
-                   return HttpResponseRedirect(reverse('login') + '?alert=invalid_credentials') 
-         else:
-              return HttpResponseRedirect(reverse('login') + '?alert=fill_fields')
-        
+    # Check if the user is already authenticated
     if request.user.is_authenticated:
-        # Check if the user has a UserProfile linked to them
-        try:
-            user_profile = UserProfile(user=request.user)
-            user_profile.save()
-        except UserProfile.DoesNotExist:
-            # Create a new UserProfile if it doesn't exist
-            user_profile = UserProfile(user=request.user)
-            user_profile.save()
-            
-    return render(request,'accounts/google/login.html')
+        if request.user.user_type == CustomUser.ADMIN:
+            return redirect(reverse('admindashboard'))
+        elif request.user.user_type == CustomUser.CUSTOMER:
+            return redirect(reverse('index'))
+        else:
+            return redirect('/')
+    
+    if request.method == 'POST':
+        captcha_token = request.POST.get("g-recaptcha-response")
+        cap_url = "https://www.google.com/recaptcha/api/siteverify"
+        cap_secret = "6LcJj44nAAAAADDjTqz0n5e7UM5HRFzMtC54swC3"
+        cap_data = {"secret": cap_secret, "response": captcha_token}
+        
+        cap_server_response = requests.post(url=cap_url, data=cap_data)
+        cap_json = json.loads(cap_server_response.text)
+        
+        if not cap_json['success']:
+            return HttpResponseRedirect(reverse('login') + '?alert=invalid_captcha') 
+
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                auth_login(request, user)
+
+                if request.user.user_type == CustomUser.ADMIN:
+                    return redirect(reverse('admindashboard'))
+                elif request.user.user_type == CustomUser.CUSTOMER:
+                    return redirect(reverse('index'))
+                else:
+                    return redirect('/')
+            else:
+                return HttpResponseRedirect(reverse('login') + '?alert=invalid_credentials')
+        else:
+            return HttpResponseRedirect(reverse('login') + '?alert=fill_fields')
+
+    return render(request, 'accounts/google/login.html')
 
 def register(request):
     if request.method == 'POST':
@@ -116,6 +110,7 @@ def register(request):
 def reset_password(request):
     return redirect('reset_password.html')
 
+@login_required
 def admindashboard(request):
     user_count = User.objects.exclude(is_superuser=True).count()
     property_count = Property.objects.count()

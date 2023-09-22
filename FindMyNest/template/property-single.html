@@ -12,11 +12,19 @@
       height: 700px; 
       object-fit: fill; 
     }
-
+    .link-grey { color: #aaa; } .link-grey:hover { color: #00913b; }
     #property-single-carousel {
       max-width: 2500px; 
       margin: 0 auto; 
     }
+
+    .card:hover {
+      /* Add your desired styles here */
+      background-color: #f5f5f5; /* Change the background color on hover */
+      cursor: pointer; /* Change the cursor to a pointer on hover */
+  }
+
+  
     .contact-button {
       display: inline-block;
       padding: 10px 0; /* Adjust vertical padding as needed */
@@ -74,7 +82,7 @@
       <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link active" href="{% url 'index' %}">Home</a>
+            <a class="nav-link " href="{% url 'index' %}">Home</a>
           </li>
 
           <li class="nav-item">
@@ -83,7 +91,7 @@
 
           {% if user.is_superuser %}
           <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
+            <a class="nav-link active " href="{% url 'propertylist' %}">Property</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
@@ -94,9 +102,15 @@
 
 
           {%  elif  user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'propertylist' %}">Property</a>
-          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'propertylist' %}">All Property</a>
+                {% for property_type in property_types %}
+                    <a class="dropdown-item" href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
+                {% endfor %}
+            </div>
+        </li>
           <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li>
@@ -130,7 +144,7 @@
 
     <!-- ======= Intro Single ======= -->
     <section class="intro-single">
-      <div class="container" style="max-width: 1700px;">
+      <div class="container" style="max-width: 1400px;">
         <div class="row">
           <div class="col-md-12 col-lg-8">
             <div class="title-single-box">
@@ -157,7 +171,7 @@
 
     <!-- ======= Property Single ======= -->
     <section class="property-single nav-arrow-b">
-      <div class="container" style="max-width: 1500px;"">
+      <div class="container" style="max-width: 1400px;">
         <div class="row justify-content-center mb-10" >
           <div class="col-lg-15 mb-10">
             <!-- Bootstrap Carousel for multiple images -->
@@ -191,11 +205,9 @@
               <div class="col-md-5 col-lg-4">
                 <div class="property-price d-flex justify-content-center foo">
                   <div class="card-header-c d-flex">
-                    <div class="card-box-ico">
-                      <span class="bi bi-cash">Rs</span>
-                    </div>
+                      <h5 class="title-c" style="margin-top: 60px;">Rs</h5>
                     <div class="card-title-c align-self-center">
-                      <h5 class="title-c">{{property.price}}</h5>
+                      <h5 class="title-c" style="margin-left: 20px; margin-top: 60px;">{{property.price}}</h5>
                     </div>
                   </div>
                 </div>
@@ -291,7 +303,7 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <div class="title-box-d">
-                      <h3 class="title-d">Property Description</h3>
+                      <h3 class="title-d"  style="margin-top: 60px;">Property Description</h3>
                     </div>
                   </div>
                 </div>
@@ -375,34 +387,100 @@
                 </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-12 col-lg-12">
-                <div class="property-contact">
-                  <form class="form-a">
-                    <div class="row">
-                      <div class="col-md-12 mb-1">
-                        <div class="form-group">
-                          <input type="text" class="form-control form-control-lg form-control-a" id="inputName" placeholder="Name *" required>
+
+
+            {% if feedbacks %}
+            <!-- Loop through each feedback for the property -->
+            {% for feedback in feedbacks %}
+                <div class="row mt-1">
+                    <div class="container text-dark">
+                        <div class="row d-flex justify-content-center">
+                            <div class="card mt-1">
+                                <div class="card-body">
+                                    <div class="d-flex flex-start">
+                                        <!-- Check if the user profile has a profile picture -->
+                                        {% if feedback.userprofile.profile_pic %}
+                                            <img class="rounded-circle shadow-1-strong me-3"
+                                                src="{{ feedback.userprofile.profile_pic.url }}"
+                                                alt="avatar" width="40" height="40" />
+                                        {% else %}
+                                            <!-- Display a default image if no profile picture is available -->
+                                            <img class="rounded-circle shadow-1-strong me-3"
+                                                src="{% static 'assets/img/pro_pic.png' %}"
+                                                alt="avatar" width="40" height="40" />
+                                        {% endif %}
+                                        <div class="w-100">
+                                          <div class="d-flex justify-content-between align-items-center ">
+                                            <h6 class="text-success fw-bold mb-10">
+                                                @{{ feedback.userprofile.user.username }}
+                                              </h6>
+                                            <p class="">{{ feedback.comment_date|date:"F d, Y" }}</p>
+                                        </div>
+                                        <span class=" mt-5 " style="margin-left: 40px;">{{ feedback.message }}</span>
+                                        {% comment %} <button class="btn btn-link btn-sm" id="like-btn-{{ feedback.id }}"
+                                        onclick="likeFeedback({{ feedback.id }})">
+                                    <i class="fa fa-heart {% if user in feedback.likes.all %}text-danger{% endif %}" aria-hidden="true"></i>
+                                    <span id="likes-count-{{ feedback.id }}">{{ feedback.likes.count }}</span>
+                                </button>
+                                         {% endcomment %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                      </div>
-                      <div class="col-md-12 mb-1">
-                        <div class="form-group">
-                          <input type="email" class="form-control form-control-lg form-control-a" id="inputEmail1" placeholder="Email *" required>
-                        </div>
-                      </div>
-                      <div class="col-md-12 mb-1">
-                        <div class="form-group">
-                          <textarea id="textMessage" class="form-control" placeholder="Comment *" name="message" cols="45" rows="8" required></textarea>
-                        </div>
-                      </div>
-                      <div class="col-md-12 mt-3">
-                        <button type="submit" class="btn btn-a">Send Message</button>
-                      </div>
                     </div>
-                  </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- If no feedback for this property, display a message -->
+            <p>No comments for this property.</p>
+        {% endif %}
+              </div>
+
+
+            <div class="col-md-30">
+              <div class="row section-t3">
+                <div class="col-sm-12">
+                  <div class="title-box-d">
+                    <h3 class="title-d">Post Comments</h3>
+                  </div>
                 </div>
               </div>
+            <div class="row">
+              <div class="col-md-12 col-lg-12">
+                  <div class="property-contact">
+                      <form class="form-a" onsubmit="return checkAll();" method="post" action="{% url 'submit_comment' %}">
+                        {% csrf_token %}
+                          <div class="row">
+                              <div class="col-md-12 mb-1">
+                                  <div class="form-group">
+                                      <input type="text" class="form-control form-control-lg form-control-a" name="first_name" id="first_name" placeholder="Name *" required>
+                                      <div class="invalid-feedback" id="first_name_feedback"></div>
+                                  </div>
+                              </div>
+                              <div class="col-md-12 mb-1">
+                                  <div class="form-group">
+                                      <input type="email" class="form-control form-control-lg form-control-a" name="email" id="email" placeholder="Email *" required>
+                                      <div class="invalid-feedback" id="email_feedback"></div>
+                                  </div>
+                              </div>
+                              <input type="hidden" name="property_id" value="{{ property.id }}">
+                              <div class="col-md-12 mb-1">
+                                  <div class="form-group">
+                                      <textarea id="textMessage" class="form-control" placeholder="Comment *" name="message" cols="45" rows="8" required></textarea>
+                                      <div class="invalid-feedback" id="textMessage_feedback"></div>
+                                  </div>
+                              </div>
+                              <input type="hidden" name="property_id" value="{{ property.id }}">
+                              <div class="col-md-12 mt-3">
+                                  <button type="submit" class="btn btn-a">Post</button>
+                              </div>
+                          </div>
+                      </form>
+                  </div>
+              </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -421,17 +499,19 @@
             </div>
             <div class="w-body-a">
               <p class="w-text-a color-text-a">
-                Enim minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip exea commodo consequat duis
-                sed aute irure.
+                FindMyNest is an innovative online platform designed to simplify the process of property management and real estate transactions. 
+                  This digital solution aims to provide users with the convenience of searching for, viewing, and booking properties from the comfort of their own space. 
+                  With a user-friendly interface, FindMyNest allows clients to explore a wide range of properties, 
+                  from residences to offices, and even assists in property-related services like home shifting and home loans.
               </p>
             </div>
             <div class="w-footer-a">
               <ul class="list-unstyled">
                 <li class="color-a">
-                  <span class="color-text-a">Phone .</span> contact@example.com
+                  <span class="color-text-a">Phone .</span> +91 8113825461
                 </li>
                 <li class="color-a">
-                  <span class="color-text-a">Email .</span> +54 356 945234
+                  <span class="color-text-a">Email .</span> findmynest@gmail.com
                 </li>
               </ul>
             </div>
@@ -550,7 +630,7 @@
           <div class="copyright-footer">
             <p class="copyright color-text-a">
               &copy; Copyright
-              <span class="color-a">EstateAgency</span> All Rights Reserved.
+              <span class="color-a">FindMyNest</span> All Rights Reserved.
             </p>
           </div>
           <div class="credits">
@@ -560,13 +640,12 @@
             Licensing information: https://bootstrapmade.com/license/
             Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=EstateAgency
           -->
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> -->
           </div>
         </div>
       </div>
     </div>
   </footer><!-- End  Footer -->
-
   <div id="preloader"></div>
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
@@ -584,7 +663,83 @@
   // Initialize Video.js on the video element with an ID of "videoPlayer"
   var player = videojs('videoPlayer');
 </script>
+<script>
+  function validateField(inputElement, pattern, feedbackElement) {
+      const value = inputElement.value.trim();
+      if (!pattern.test(value)) {
+          inputElement.classList.add('is-invalid');
+          inputElement.classList.remove('is-valid');
+          feedbackElement.textContent = `Please enter a valid ${inputElement.getAttribute('id')}.`;
+          return false;
+      } else {
+          inputElement.classList.remove('is-invalid');
+          inputElement.classList.add('is-valid');
+          feedbackElement.textContent = '';
+          return true;
+      }
+  }
 
+  function validateEmail() {
+      const emailInput = document.getElementById('email');
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return validateField(emailInput, emailPattern, document.getElementById('email_feedback'));
+  }
+
+  function validateFirst_Name() {
+      const firstNameInput = document.getElementById('first_name');
+      const namePattern = /^[A-Za-z ]+$/;
+      return validateField(firstNameInput, namePattern, document.getElementById('first_name_feedback'));
+  }
+
+  function validateTextMessage() {
+      const textMessageInput = document.getElementById('textMessage');
+      const messagePattern = /^.{1,255}$/; // Adjust the pattern as needed
+      return validateField(textMessageInput, messagePattern, document.getElementById('textMessage_feedback'));
+  }
+
+  function checkAll() {
+      const isFirstNameValid = validateFirst_Name();
+      const isEmailValid = validateEmail();
+      const isTextMessageValid = validateTextMessage();
+
+      // Check if all fields are valid
+      if (isFirstNameValid && isEmailValid && isTextMessageValid) {
+          return true; // Allow form submission
+      } else {
+          return false; // Prevent form submission
+      }
+  }
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% comment %} <script>
+  function likeFeedback(feedbackId, csrfToken) {
+      // Send an AJAX request to like/unlike the feedback
+      $.ajax({
+          url: "{% url 'like_feedback' %}",
+          type: "POST",
+          data: {
+              'feedback_id': feedbackId,
+              'csrfmiddlewaretoken': csrfToken
+          },
+          success: function (data) {
+              if (data.liked) {
+                  // User liked the feedback, update the heart icon and likes count
+                  $('#like-btn-' + feedbackId + ' i').addClass('text-danger');
+              } else {
+                  // User unliked the feedback, update the heart icon and likes count
+                  $('#like-btn-' + feedbackId + ' i').removeClass('text-danger');
+              }
+              $('#likes-count-' + feedbackId).text(data.likes_count);
+          },
+          error: function () {
+              alert("An error occurred while processing your request.");
+          }
+      });
+  }
+</script> {% endcomment %}
+  
 </body>
 
 </html>

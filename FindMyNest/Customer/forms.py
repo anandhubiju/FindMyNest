@@ -20,7 +20,7 @@ class PropertyForm(forms.ModelForm):
         model = Property
         fields = ['thumbnail', 'video', 'owner_name', 'property_type', 'status', 'price', 'area', 'bedrooms',
                   'bathrooms', 'rooms', 'garage', 'address', 'Town', 'state', 'zipcode', 'description',
-                  'bulding_age','near_supermarket','near_hospital','major_road', 'floor','floor_no','floor_plan', 'last_renovated', 'whatsapp_no','features','nearby_place']
+                  'bulding_age','near_supermarket','near_hospital','major_road', 'floor','floor_no','floor_plan', 'last_renovated', 'whatsapp_no','nearby_place','features']
         widgets = {
             'thumbnail': forms.FileInput(attrs={
                 "class": "form-control",
@@ -32,13 +32,15 @@ class PropertyForm(forms.ModelForm):
                 "class": "form-control ",
                 'id':"video",
                 'onkeyup':"validateVideoFile()",
-                'placeholder': 'Upload Video'
+                'placeholder': 'Upload Video',
+                'required': False  
             }),
             'floor_plan': forms.FileInput(attrs={
-                "class": "form-control ",
-                'id':"floor_plan",
-                'onkeyup':"validateImageFile(floorPlanInput)",
-                'placeholder': 'Upload Video'
+                "class": "form-control",
+                'id': "floor_plan",
+                'onkeyup': "validateImageFile(floorPlanInput)",
+                'placeholder': 'Upload Video',  # Added a comma here
+                'required': False  # Changed 'false' to 'False'
             }),
             'owner_name': forms.TextInput(attrs={
                 "class": "form-control ",
@@ -48,7 +50,7 @@ class PropertyForm(forms.ModelForm):
             'area': forms.TextInput(attrs={
                 "class": "form-control ",
                 'id':"area",
-                'placeholder': 'Enter Owner Name'
+                'placeholder': 'Enter Area in Square Feet eg(2000sf|22 lack sf)'
             }),
             'address': forms.TextInput(attrs={
                 "class": "form-control ",
@@ -64,12 +66,14 @@ class PropertyForm(forms.ModelForm):
                 "class": "form-control ",
                 'id':"whatsapp_no",
                 'onkeyup':"validatePhoneNumber()",
-                'placeholder': 'Enter '
+                'placeholder': 'Enter phone number ',
+                'min': '0'
             }),
             'price': forms.NumberInput(attrs={
                 "class": "form-control ",
-                'id':"price",
-                'placeholder': 'Enter Price'
+                'id':"amount",
+                'placeholder': 'Enter Price',
+                'min': '0'
             }),
              'zipcode': forms.NumberInput(attrs={
                 "class": "form-control",
@@ -96,15 +100,18 @@ class PropertyForm(forms.ModelForm):
             }),
             'bedrooms': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'bedrooms'
+                'id':'bedrooms',
+                
             }),
             'rooms': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'rooms'
+                'id':'rooms',
+                'required': False  
             }),
             'garage': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'garage'
+                'id':'garage',
+                'required': False  
             }),
             'state': forms.Select(attrs={
                 "class": "form-control ",

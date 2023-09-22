@@ -1,5 +1,5 @@
 from django.db import models
-from UserApp.models import CustomUser
+from UserApp.models import CustomUser,UserProfile
 
 # Create your models here.
 
@@ -259,16 +259,16 @@ class Property(models.Model):
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     thumbnail = models.FileField(upload_to='thumbnail/')
-    video = models.FileField(upload_to='videos/', null=True, default='')
+    video = models.FileField(upload_to='videos/', null=True, blank=True)
     owner_name = models.CharField(max_length=30)
     address = models.CharField(max_length=100)
     Town = models.CharField(max_length=100)
     zipcode = models.IntegerField()
     description = models.CharField(max_length=500)
-    floor_plan = models.FileField(upload_to='floorplan/', default='')
+    floor_plan = models.FileField(upload_to='floorplan/', default='',null=True, blank=True)
     whatsapp_no = models.IntegerField()
-    nearby_place = models.CharField(max_length=255, default='')
-    features = models.CharField(max_length=255,default='')
+    nearby_place = models.CharField(max_length=255, default='',null=True, blank=True)
+    features = models.CharField(max_length=255,default='',)
     price = models.IntegerField()
     area = models.CharField(max_length=100)
     property_type = models.CharField(max_length=40, choices=TYPE_CHOICES, blank=True, null=True)
@@ -306,17 +306,17 @@ class PropertyView(models.Model):
     property = models.ForeignKey('Property', on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-       
     
-class Wishlist(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-    status=models.BooleanField(default=False)
-    
-  
+class Feedback(models.Model):
+    userprofile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    property = models.ForeignKey('Property', on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    comment_date = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(CustomUser, related_name='liked_feedbacks', blank=True)
+
     def __str__(self):
-        return f"Liked By {self.pk}" 
-    
-    
+        return self.first_name
 
     
