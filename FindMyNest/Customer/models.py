@@ -48,6 +48,12 @@ class Property(models.Model):
         ('Garage', 'Garage'),
     ]
     
+    TAX_CHOICE =[
+        ('', 'Select an option'),
+        ('Included', 'Included'),
+        ('Not Included', 'Not Included'),
+       ]
+    
     STATUS_CHOICES = [
         ('', 'Select an option'),
         ('For Sale', 'For Sale'),
@@ -280,6 +286,7 @@ class Property(models.Model):
     status = models.CharField(max_length=40, choices=STATUS_CHOICES, blank=True, null=True)
     bedrooms = models.CharField(max_length=40, choices=BEDROOM_CHOICES, blank=True, null=True)
     bathrooms = models.CharField(max_length=40, choices=BATHROOM_CHOICES, blank=True, null=True)
+    bathrooms_attached = models.CharField(max_length=40, choices=BATHROOM_CHOICES, blank=True, null=True)
     rooms = models.CharField(max_length=40, choices=ROOM_CHOICES, blank=True, null=True)
     state = models.CharField(max_length=40, choices=STATE_CHOICES, blank=True, null=True)
     garage = models.CharField(max_length=40, choices=GARAGE_CHOICES, blank=True, null=True)
@@ -297,6 +304,7 @@ class Property(models.Model):
     days_to_sell = models.PositiveIntegerField(default=0)
     property_tips = models.TextField(default='')
     sale_duration_tips = models.TextField(default='')
+    tax_status= models.CharField(max_length=40, choices=TAX_CHOICE, blank=True, null=True)
     
 
     def __str__(self):

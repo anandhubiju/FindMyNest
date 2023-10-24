@@ -20,7 +20,7 @@ class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
         fields = ['thumbnail', 'video', 'owner_name', 'property_type', 'status', 'price', 'area', 'bedrooms',
-                  'bathrooms', 'rooms', 'garage', 'address', 'Town', 'state', 'zipcode', 'description',
+                  'bathrooms', 'rooms', 'garage', 'address', 'Town', 'state', 'zipcode', 'description','bathrooms_attached','tax_status',
                   'bulding_age','near_supermarket','near_hospital','major_road', 'floor','floor_no','floor_plan', 'last_renovated', 'whatsapp_no','nearby_place','features']
         widgets = {
             'thumbnail': forms.FileInput(attrs={
@@ -95,7 +95,15 @@ class PropertyForm(forms.ModelForm):
                 "class": "form-control ",
                 'id':'status'
             }),
-            'bathrooms': forms.Select(attrs={
+            'tax_status': forms.Select(attrs={
+                "class": "form-control ",
+                'id':'tax_status'
+            }),
+            'bathrooms_attached': forms.Select(attrs={
+                "class": "form-control ",
+                'id':'bathrooms_attached'
+            }),
+             'bathrooms': forms.Select(attrs={
                 "class": "form-control ",
                 'id':'bathrooms'
             }),

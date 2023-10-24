@@ -286,41 +286,148 @@ def add_remove_from_wishlist(request):
 
     return JsonResponse({'added': added})
 
-
 def edit_property(request, property_id):
     property = get_object_or_404(Property, id=property_id)
     if request.method == 'POST':
-        
         form = PropertyForm(request.POST, request.FILES, instance=property)
-    
         if form.is_valid():
             updated_property = form.save(commit=False)
-            
-            
+
             selected_features = form.cleaned_data['features']
             features_str = ', '.join(selected_features)
             updated_property.features = features_str
-            
+
             selected_nearby_place = form.cleaned_data['nearby_place']
             nearby_place_str = ', '.join(selected_nearby_place)
             updated_property.nearby_place = nearby_place_str
 
+            distance_to_major_road = input_and_average(form.cleaned_data['major_road'])
+            distance_to_supermarket = input_and_average(form.cleaned_data['near_supermarket'])
+            property_age = input_and_average(form.cleaned_data['bulding_age'])
+
+            last_renovation_years_ago_input = form.cleaned_data['last_renovated']
+            last_renovation_years_ago_parts = last_renovation_years_ago_input.split('-')
+            last_renovation_years_ago = (int(last_renovation_years_ago_parts[0]) + int(last_renovation_years_ago_parts[1])) // 2
+
+            property_type = form.cleaned_data['property_type']
+
+            if property_type == 'Apartment':
+                floor_value = form.cleaned_data['floor_no']
+            else:
+                floor_value = form.cleaned_data['floor']
+
+            if property_type in ['Commercial', 'Garage']:
+                num_bedrooms = 0
+            else:
+                num_bedrooms = form.cleaned_data['bedrooms']
+
+            furnished = 1 if 'Furnished' in selected_features else 0
+            air_conditioner = 1 if 'Air Condition' in selected_features else 0
+            parking = 1 if 'Parking' in selected_features else 0
+            water_available = 1 if 'Well(Water Availability)' in selected_features else 0
+
+            user_input_dict = {
+                'property_type': property_type,
+                'num_bedrooms': num_bedrooms,
+                'num_bathrooms': form.cleaned_data['bathrooms'],
+                'furnished': furnished,
+                'air_conditioner': air_conditioner,
+                'parking': parking,
+                'last_renovation_years_ago': last_renovation_years_ago,
+                'water_available': water_available,
+                'distance_to_major_road': [distance_to_major_road],
+                'distance_to_supermarket': [distance_to_supermarket],
+                'price': form.cleaned_data['price'],
+                'property_age': [property_age],
+                'total_rooms': form.cleaned_data['rooms'],
+                'floor': floor_value
+            }
+
+            user_input_df = pd.DataFrame(user_input_dict)
+
+            # Process label encoders here
+            for col, le in label_encoders.items():
+                user_input_df[col] = le.transform(user_input_df[col])
+
+            # Model prediction
+            sale_duration_prediction = model.predict(user_input_df)
+
+            # Save the exact number of days to sell
+            exact_days_to_sell = int(sale_duration_prediction[0])
+            updated_property.days_to_sell = exact_days_to_sell
+
+            # Generate property tips based on business logic
+            property_tips = []
+
+            if exact_days_to_sell > 30:
+                property_tips = analyze_property_details(user_input_df.iloc[0])
+
+            # Save property_tips
+            updated_property.property_tips = ", ".join(property_tips)
+
+            sale_duration_tips = []
+
+            # Generate sale_duration_tips
+            if exact_days_to_sell <= 30:
+                sale_duration_tips.append("Your property is likely to sell quickly. Ensure it's well-maintained for a smooth sale.")
+            elif exact_days_to_sell <= 60:
+                sale_duration_tips.append("Your property may take a couple of months to sell. Consider staging and effective marketing.")
+            else:
+                sale_duration_tips.append("Your property may take some time to sell. Focus on competitive pricing and marketing strategies")
+
+            # Set the sale_duration_tips field
+            updated_property.sale_duration_tips = ", ".join(sale_duration_tips)
+
+            updated_property.save()
+
             images = request.FILES.getlist('images')
             if images:
-                
+                # Delete existing property images and add new ones
                 Image.objects.filter(property=updated_property).delete()
-                
                 for image in images:
                     property_image = Image(property=updated_property, images=image)
                     property_image.save()
 
-            updated_property.save()
-
-            return redirect('propertylist') 
+            return redirect(reverse('property_single', args=[property_id]))
     else:
         form = PropertyForm(instance=property)
 
     return render(request, 'edit_property.html', {'form': form, 'property': property })
+
+# def edit_property(request, property_id):
+#     property = get_object_or_404(Property, id=property_id)
+#     if request.method == 'POST':
+        
+#         form = PropertyForm(request.POST, request.FILES, instance=property)
+    
+#         if form.is_valid():
+#             updated_property = form.save(commit=False)
+            
+            
+#             selected_features = form.cleaned_data['features']
+#             features_str = ', '.join(selected_features)
+#             updated_property.features = features_str
+            
+#             selected_nearby_place = form.cleaned_data['nearby_place']
+#             nearby_place_str = ', '.join(selected_nearby_place)
+#             updated_property.nearby_place = nearby_place_str
+
+#             images = request.FILES.getlist('images')
+#             if images:
+                
+#                 Image.objects.filter(property=updated_property).delete()
+                
+#                 for image in images:
+#                     property_image = Image(property=updated_property, images=image)
+#                     property_image.save()
+
+#             updated_property.save()
+
+#             return redirect('propertylist') 
+#     else:
+#         form = PropertyForm(instance=property)
+
+#     return render(request, 'edit_property.html', {'form': form, 'property': property })
 
 
 
@@ -421,40 +528,112 @@ def like_feedback(request, feedback_id):
 
 
 def update_property(request, property_id):
-    
     property = get_object_or_404(Property, id=property_id)
-    if request.method == 'POST':
-        
-        form = PropertyForm(request.POST, request.FILES, instance=property)
     
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES, instance=property)
         if form.is_valid():
             updated_property = form.save(commit=False)
-            
-            
+
             selected_features = form.cleaned_data['features']
             features_str = ', '.join(selected_features)
             updated_property.features = features_str
-            
+
             selected_nearby_place = form.cleaned_data['nearby_place']
             nearby_place_str = ', '.join(selected_nearby_place)
             updated_property.nearby_place = nearby_place_str
 
+            distance_to_major_road = input_and_average(form.cleaned_data['major_road'])
+            distance_to_supermarket = input_and_average(form.cleaned_data['near_supermarket'])
+            property_age = input_and_average(form.cleaned_data['building_age'])
+
+            last_renovation_years_ago_input = form.cleaned_data['last_renovated']
+            last_renovation_years_ago_parts = last_renovation_years_ago_input.split('-')
+            last_renovation_years_ago = (int(last_renovation_years_ago_parts[0]) + int(last_renovation_years_ago_parts[1])) // 2
+
+            property_type = form.cleaned_data['property_type']
+
+            if property_type == 'Apartment':
+                floor_value = form.cleaned_data['floor_no']
+            else:
+                floor_value = form.cleaned_data['floor']
+
+            if property_type in ['Commercial', 'Garage']:
+                num_bedrooms = 0
+            else:
+                num_bedrooms = form.cleaned_data['bedrooms']
+
+            furnished = 1 if 'Furnished' in selected_features else 0
+            air_conditioner = 1 if 'Air Condition' in selected_features else 0
+            parking = 1 if 'Parking' in selected_features else 0
+            water_available = 1 if 'Well(Water Availability)' in selected_features else 0
+
+            user_input_dict = {
+                'property_type': property_type,
+                'num_bedrooms': num_bedrooms,
+                'num_bathrooms': form.cleaned_data['bathrooms'],
+                'furnished': furnished,
+                'air_conditioner': air_conditioner,
+                'parking': parking,
+                'last_renovation_years_ago': last_renovation_years_ago,
+                'water_available': water_available,
+                'distance_to_major_road': [distance_to_major_road],
+                'distance_to_supermarket': [distance_to_supermarket],
+                'price': form.cleaned_data['price'],
+                'property_age': [property_age],
+                'total_rooms': form.cleaned_data['rooms'],
+                'floor': floor_value
+            }
+
+            user_input_df = pd.DataFrame(user_input_dict)
+
+            for col, le in label_encoders.items():
+                user_input_df[col] = le.transform(user_input_df[col])
+
+            sale_duration_prediction = model.predict(user_input_df)
+
+            # Save the exact number of days to sell
+            exact_days_to_sell = int(sale_duration_prediction[0])
+            updated_property.days_to_sell = exact_days_to_sell
+
+            # Generate property tips based on business logic
+            property_tips = []
+
+            if exact_days_to_sell > 30:
+                property_tips = analyze_property_details(user_input_df.iloc[0])
+
+            # Save property_tips
+            updated_property.property_tips = ", ".join(property_tips)
+
+            sale_duration_tips = []
+
+            # Generate sale_duration_tips
+            if exact_days_to_sell <= 30:
+                sale_duration_tips.append("Your property is likely to sell quickly. Ensure it's well-maintained for a smooth sale.")
+            elif exact_days_to_sell <= 60:
+                sale_duration_tips.append("Your property may take a couple of months to sell. Consider staging and effective marketing.")
+            else:
+                sale_duration_tips.append("Your property may take some time to sell. Focus on competitive pricing and marketing strategies")
+
+            # Set the sale_duration_tips field
+            updated_property.sale_duration_tips = ", ".join(sale_duration_tips)
+
+            updated_property.save()
+
             images = request.FILES.getlist('images')
             if images:
-                
+                # Delete existing property images and add new ones
                 Image.objects.filter(property=updated_property).delete()
-                
                 for image in images:
                     property_image = Image(property=updated_property, images=image)
                     property_image.save()
 
-            updated_property.save()
-
-            return redirect('editprofile') 
+            return redirect(reverse('property_single', args=[property_id]))
     else:
         form = PropertyForm(instance=property)
 
     return render(request, 'update_property.html', {'form': form, 'property': property })
+
 
 
 

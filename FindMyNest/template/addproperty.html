@@ -292,7 +292,15 @@
                             <div class="invalid-feedback"></div>
                             <div class="valid-feedback"></div>
                         </div>
-													
+
+                        <div class="form-group col-md-6 pd-20">
+                          <label class="mt-2 mb-1">Tax Included</label>
+                          {{ form.tax_status }}
+                          <!-- <input type="text" id="price" name="price" class="form-control" placeholder="Rupees" required> -->
+                          <div class="invalid-feedback"></div>
+                          <div class="valid-feedback"></div>
+                      </div>
+
 													<div class="form-group col-md-6 pd-20">
 														<label class="mt-2 mb-1">Area(In square Feet)</label>
 														{{ form.area }}
@@ -315,7 +323,7 @@
                         </div>
 													
 													<div class="form-group col-md-6 pd-20">
-														<label class="mt-2 mb-1">Bathrooms</label>
+														<label class="mt-2 mb-1" id="bathrooms">Bathrooms</label>
                             {{ form.bathrooms }}
                             <!-- <select id="bathrooms" name="bathrooms" class="form-control" required>
 															<option>&nbsp;</option>
@@ -327,7 +335,19 @@
 															<option>More then 5</option>
 														</select> -->
 													</div>
-
+													<div class="form-group col-md-6 pd-20">
+														<label class="mt-2 mb-1" id="bathrooms_attached1">Bathrooms Attached</label>
+                            {{ form.bathrooms_attached }}
+                            <!-- <select id="bathrooms" name="bathrooms" class="form-control" required>
+															<option>&nbsp;</option>
+															<option>1</option>
+															<option>2</option>
+															<option>3</option>
+															<option>4</option>
+															<option>5</option>
+															<option>More then 5</option>
+														</select> -->
+													</div>
                           <div class="form-group col-md-6 pd-20">
 														<label class="mt-2 mb-1" id="floorl">Number of Floor</label>
                             {{ form.floor }}
@@ -1055,13 +1075,17 @@
     var floor_noField = document.getElementById("floor_no");
     var floor_noFieldl = document.getElementById("floor_nol");
     var floorFieldl = document.getElementById("floorl");
+    var bathroomsAttachedField1 = document.getElementById("bathrooms_attached1");
+    var bathroomsAttachedField = document.getElementById("bathrooms_attached");
 
 
     var selectedPropertyType = propertyTypeSelect.value;
 
     // Check if the selected property type is "Offices," "Garage," or "Commercial"
-    if (selectedPropertyType === "Offices" || selectedPropertyType === "Garage" || selectedPropertyType === "Commercial") {
+    if ( selectedPropertyType === "Garage" || selectedPropertyType === "Commercial") {
       bedroomsField.style.display = "none"; // Hide the Bedrooms field
+      bathroomsAttachedField1.style.display = "none"; // Hide the Bathrooms Attached field
+      bathroomsAttachedField.style.display = "none";
       if (floorField) {
         floorField.style.display = "block"; // Show the Floor field if it exists
         floorFieldl.style.display = "block";
@@ -1073,9 +1097,16 @@
       if (garageField) {
         garageField.style.display = "none"; // Hide the Garage field if it exists
       }
+      
     } else {
       bedroomsField.style.display = "block"; // Show the Bedrooms field
-      
+    if (selectedPropertyType === "House" || selectedPropertyType === "Villa") {
+        bathroomsAttachedField1.style.display = "block"; // Show the Bathrooms Attached field
+        bathroomsAttachedField.style.display = "block";
+    } else {
+        bathroomsAttachedField1.style.display = "none"; // Hide the Bathrooms Attached field
+        bathroomsAttachedField.style.display = "none";
+    }
       if (selectedPropertyType === "Apartment") {
         if (garageField) {
           garageField.style.display = "none"; // Hide the Garage field for Apartment
@@ -1110,6 +1141,10 @@
 
   // Trigger the toggleFields function initially to handle the initial state
   toggleFields();
+  
+
+// Trigger the toggleFields function initially to handle the initial state
+toggleFields();
 </script>
 
 
