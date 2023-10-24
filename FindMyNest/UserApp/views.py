@@ -11,20 +11,26 @@ from django.contrib  import messages,auth
 from .models import CustomUser,UserProfile
 from FindMyNestApp.models import Subscription
 from Customer.models import Property
+from FindMyNestApp.models import Payment
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import json
 import requests
+import matplotlib.pyplot as plt
 from social_django.utils import psa
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_control
+from django.contrib.auth.views import LoginView
 
 User = get_user_model()
 
+
+from django.http import HttpResponse
 
 def login(request):
     # Check if the user is already authenticated
@@ -37,16 +43,16 @@ def login(request):
             return redirect('/')
     
     if request.method == 'POST':
-        captcha_token = request.POST.get("g-recaptcha-response")
-        cap_url = "https://www.google.com/recaptcha/api/siteverify"
-        cap_secret = "6LcJj44nAAAAADDjTqz0n5e7UM5HRFzMtC54swC3"
-        cap_data = {"secret": cap_secret, "response": captcha_token}
+        # captcha_token = request.POST.get("g-recaptcha-response")
+        # cap_url = "https://www.google.com/recaptcha/api/siteverify"
+        # cap_secret = "6LcJj44nAAAAADDjTqz0n5e7UM5HRFzMtC54swC3"
+        # cap_data = {"secret": cap_secret, "response": captcha_token}
         
-        cap_server_response = requests.post(url=cap_url, data=cap_data)
-        cap_json = json.loads(cap_server_response.text)
+        # cap_server_response = requests.post(url=cap_url, data=cap_data)
+        # cap_json = json.loads(cap_server_response.text)
         
-        if not cap_json['success']:
-            return HttpResponseRedirect(reverse('login') + '?alert=invalid_captcha') 
+        # if not cap_json['success']:
+        #     return HttpResponseRedirect(reverse('login') + '?alert=invalid_captcha') 
 
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -68,7 +74,12 @@ def login(request):
         else:
             return HttpResponseRedirect(reverse('login') + '?alert=fill_fields')
 
-    return render(request, 'accounts/google/login.html')
+    # Set Cache-Control header to disable browser's back button
+    response = render(request, 'accounts/google/login.html')
+    response['Cache-Control'] = 'no-store'
+
+    return response
+
 
 def register(request):
     if request.method == 'POST':
@@ -88,27 +99,33 @@ def register(request):
             elif User.objects.filter(email=email).exists():
                 return HttpResponseRedirect(reverse('register') + '?alert=email_is_already_registered')
 
-            elif User.objects.filter(phone_no=phone).exists():
+            elif User.objects.filter(userprofile__phone_no=phone).exists():
                 return HttpResponseRedirect(reverse('register') + '?alert=phone_no_is_already_registered')
-            
-            elif password != cpassword: 
+
+            elif password != cpassword:
                 return HttpResponseRedirect(reverse('register') + '?alert=passwords_do_not_match')
-                
 
             else:
-                user = User(username=username, first_name=first_name, last_name=last_name, email=email, phone_no=phone)
+                user = User(username=username, first_name=first_name, last_name=last_name, email=email)
                 user.set_password(password)  # Set the password securely
                 user.save()
 
-                user_profile = UserProfile(user=user)
+                # Assuming you have a UserProfile model with a phone_no field
+                user_profile = UserProfile(user=user, phone_no=phone)
                 user_profile.save()
-                return HttpResponseRedirect(reverse('login') + '?alert=registered')
+
+                # After successful registration, set response headers to disable caching
+                response = HttpResponseRedirect(reverse('login') + '?alert=registered')
+                response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+                response['Pragma'] = 'no-cache'
+                response['Expires'] = '0'
+                return response
 
     return render(request, 'register.html')
-
       
 def reset_password(request):
     return redirect('reset_password.html')
+
 
 @login_required
 def admindashboard(request):
@@ -118,6 +135,9 @@ def admindashboard(request):
     users = User.objects.exclude(is_superuser=True)
     subscription_count = Subscription.objects.count()
     property_type_counts = Property.objects.values('property_type').annotate(count=Count('property_type')).order_by('property_type')
+    active_count = Property.objects.filter(active=True).count()
+    # Get the count of not active users (users with status "not active")
+    not_active_count = Property.objects.filter(active=False).count()
     
     
     context = {
@@ -127,9 +147,43 @@ def admindashboard(request):
         'users': users,
         'properties': properties,
         'subscription_count': subscription_count,
+        'active_count': active_count,
+        'not_active_count': not_active_count,
     }
     
-    return render(request, 'admin_dashboard.html', context)
+    return render(request, 'Admin-DashBoard.html', context)
+
+
+def users(request):
+    user_count = User.objects.exclude(is_superuser=True).count()
+    users = User.objects.exclude(is_superuser=True)
+    
+    context = {
+        'user_count': user_count,
+        'users': users,
+    }
+    return render(request, 'users_list.html', context)
+
+def propertys(request):
+    properties = Property.objects.all()
+
+    
+    context = {
+        'properties': properties,
+    }
+    
+    return render(request, 'Property_list.html', context)
+
+def subscription(request):
+    subscriptions = Subscription.objects.all()
+
+    
+    context = {
+        'subscriptions': subscriptions,
+    }
+    
+    return render(request, 'Subscription.html', context)
+
  
 def editprofile(request):
     user = request.user
@@ -265,24 +319,27 @@ def change_password(request):
     return render(request, 'editprofile.html', context)
 
 def view_all_users(request):
-    users = CustomUser.objects.all()
     
+    users = CustomUser.objects.all()
     context = {
         'users': users,
     }
     
     return render(request, 'User_list.html', context)
 
-def deleteUser(request,delete_id):
+def deleteUser(request, delete_id):
     delUser=User.objects.get(id=delete_id)
     delUser.delete()
-    return redirect('admindashboard')
+    return redirect('users')
 
 def delete_property(request, property_id):
-    
-    delProperty=Property.objects.get(id=property_id)
-    delProperty.delete()
-    
+
+    property_obj = get_object_or_404(Property, id=property_id)
+
+    if request.user == property_obj.user:
+        property_obj.active = False
+        property_obj.save()
+        
     return redirect('admindashboard')
 
 
@@ -293,7 +350,7 @@ def updateStatus(request,update_id):
     else:
         updateUser.is_active=True
     updateUser.save()
-    return redirect('admindashboard')
+    return redirect('users')
 
 
 def user_details(request, user_id):
@@ -310,6 +367,8 @@ def user_details(request, user_id):
     last_posted_property_created_at = last_posted_property.created_at if last_posted_property else None
     last_posted_property_modified_at = last_posted_property.modified_at if last_posted_property else None
     
+    inactive_property_count = Property.objects.filter(user=user, active=False).count()
+    
     superuser = User.objects.filter(is_superuser=True).first() 
     
     context = {
@@ -319,11 +378,10 @@ def user_details(request, user_id):
         'superuser': superuser,
         'last_posted_property_created_at': last_posted_property_created_at,
         'last_posted_property_modified_at': last_posted_property_modified_at,
+        'inactive_property_count': inactive_property_count,  # Include the count in the context
     }
     
     return render(request, 'user_details.html', context)
-
-
 
 
 def updateuserStatus(request,update_id):
@@ -334,3 +392,45 @@ def updateuserStatus(request,update_id):
         updateUser.is_active=True
     updateUser.save()
     return redirect('user_details', user_id=update_id)
+
+# def user_activity_chart(request):
+#     # Query your database to get the count of active and inactive users
+#     active_users_count = CustomUser.objects.filter(is_active=True).count()
+#     inactive_users_count = CustomUser.objects.filter(is_active=False).count()
+
+#     # Create the chart data
+#     labels = ['Active Users', 'Inactive Users']
+#     counts = [active_users_count, inactive_users_count]
+
+#     # Create a bar chart
+#     plt.bar(labels, counts, color=['green', 'red'])
+#     plt.xlabel('User Activity')
+#     plt.ylabel('User Count')
+#     plt.title('User Activity Chart')
+
+#     # Save the chart as an image or render it directly in the template
+#     # You can save it to a file if you prefer, e.g., plt.savefig('user_activity_chart.png')
+
+#     # Render the chart as an image and include it in your template
+#     from io import BytesIO
+#     import base64
+
+#     buffer = BytesIO()
+#     plt.savefig(buffer, format='png')
+#     chart_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+#     context = {
+#         'chart_image': chart_image
+#     }
+
+#     return render(request, 'Charts.html', context)
+
+def payment_info(request):
+    # Query all payment records
+    payments = Payment.objects.all()
+
+    context = {
+        'payments': payments
+    }
+
+    return render(request, 'Payment_info.html', context)

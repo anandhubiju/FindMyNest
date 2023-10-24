@@ -26,6 +26,12 @@
             z-index: 1000; /* Ensure the alert is on top of other content */
         }
 </style>
+<script>
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+</script>
 </head>
 
 <body>
@@ -62,14 +68,14 @@
                      <p>We are happy to have you back.</p>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Username" name="username" required>
+                    <input type="text" id="username" class="form-control form-control-lg bg-light fs-6" placeholder="Username" name="username" required>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" name="password" required>
+                    <input type="password" id="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" name="password" required>
                 </div>
-                <div class="input-group mb-3">
+                <!-- <div class="input-group mb-3">
                     <div class="g-recaptcha" data-sitekey="6LcJj44nAAAAAM_NCztnb4EgTD6QHnfAgix5P25k"></div>
-                </div>
+                </div> -->
                  <div class="input-group mb-5 d-flex justify-content-between">
                     <div class="forgot">
                         <small><a href="{% url 'reset_password' %}">Forgot Password?</a></small>
@@ -77,7 +83,7 @@
                 </div> 
 
                 <div class="input-group mb-3">
-                    <button class="btn btn-lg btn-primary w-100 fs-6" type="submit">Login</button>
+                    <button class="btn btn-lg btn-primary w-100 fs-6" id="submit" type="submit">Login</button>
                 </div>
                 {% load socialaccount %}
                 <div class="input-group mb-3">

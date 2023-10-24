@@ -41,9 +41,9 @@ class Property(models.Model):
     
     TYPE_CHOICES = [
         ('', 'Select an option'),
-        ('Houses', 'Houses'),
+        ('House', 'Houses'),
         ('Apartment', 'Apartment'),
-        ('Villas', 'Villas'),
+        ('Villa', 'Villas'),
         ('Commercial', 'Commercial'),
         ('Garage', 'Garage'),
     ]
@@ -83,123 +83,128 @@ class Property(models.Model):
     
     AFLOOR_CHOICES = [
     ('', 'Select an option'),
-    ('Ground Floor', 'Ground Floor'),
-    ('1 Floor', '1 Floor'),
-    ('2 Floor', '2 Floor'),
-    ('3 Floor', '3 Floor'),
-    ('4 Floor', '4 Floor'),
-    ('5 Floor', '5 Floor'),
-    ('6 Floor', '6 Floor'),
-    ('7 Floor', '7 Floor'),
-    ('8 Floor', '8 Floor'),
-    ('9 Floor', '9 Floor'),
-    ('10 Floor', '10 Floor'),
-    ('11 Floor', '11 Floor'),
-    ('12 Floor', '12 Floor'),
-    ('13 Floor', '13 Floor'),
-    ('14 Floor', '14 Floor'),
-    ('15 Floor', '15 Floor'),
-    ('16 Floor', '16 Floor'),
-    ('17 Floor', '17 Floor'),
-    ('18 Floor', '18 Floor'),
-    ('19 Floor', '19 Floor'),
-    ('20 Floor', '20 Floor'),
-    ('21 Floor', '21 Floor'),
-    ('22 Floor', '22 Floor'),
-    ('23 Floor', '23 Floor'),
-    ('24 Floor', '24 Floor'),
-    ('25 Floor', '25 Floor'),
-    ('26 Floor', '26 Floor'),
-    ('27 Floor', '27 Floor'),
-    ('28 Floor', '28 Floor'),
-    ('29 Floor', '29 Floor'),
-    ('30 Floor', '30 Floor'),
-    ('31 Floor', '31 Floor'),
-    ('32 Floor', '32 Floor'),
-    ('33 Floor', '33 Floor'),
-    ('34 Floor', '34 Floor'),
-    ('35 Floor', '35 Floor'),
-    ('36 Floor', '36 Floor'),
-    ('37 Floor', '37 Floor'),
-    ('38 Floor', '38 Floor'),
-    ('39 Floor', '39 Floor'),
-    ('40 Floor', '40 Floor'),
-    ('41 Floor', '41 Floor'),
-    ('42 Floor', '42 Floor'),
-    ('43 Floor', '43 Floor'),
-    ('44 Floor', '44 Floor'),
-    ('45 Floor', '45 Floor'),
-    ('46 Floor', '46 Floor'),
-    ('47 Floor', '47 Floor'),
-    ('48 Floor', '48 Floor'),
-    ('49 Floor', '49 Floor'),
-    ('50 Floor', '50 Floor'),
-    ('51 Floor', '51 Floor'),
-    ('52 Floor', '52 Floor'),
-    ('53 Floor', '53 Floor'),
-    ('54 Floor', '54 Floor'),
-    ('55 Floor', '55 Floor'),
-    ('56 Floor', '56 Floor'),
-    ('57 Floor', '57 Floor'),
-    ('58 Floor', '58 Floor'),
-    ('59 Floor', '59 Floor'),
-    ('60 Floor', '60 Floor'),
-    ('61 Floor', '61 Floor'),
-    ('62 Floor', '62 Floor'),
-    ('63 Floor', '63 Floor'),
-    ('64 Floor', '64 Floor'),
-    ('65 Floor', '65 Floor'),
-    ('66 Floor', '66 Floor'),
-    ('67 Floor', '67 Floor'),
-    ('68 Floor', '68 Floor'),
-    ('69 Floor', '69 Floor'),
-    ('70 Floor', '70 Floor'),
-    ('71 Floor', '71 Floor'),
-    ('72 Floor', '72 Floor'),
-    ('73 Floor', '73 Floor'),
-    ('74 Floor', '74 Floor'),
-    ('75 Floor', '75 Floor'),
-    ('76 Floor', '76 Floor'),
-    ('77 Floor', '77 Floor'),
-    ('78 Floor', '78 Floor'),
-    ('79 Floor', '79 Floor'),
-    ('80 Floor', '80 Floor'),
-    ('81 Floor', '81 Floor'),
-    ('82 Floor', '82 Floor'),
-    ('83 Floor', '83 Floor'),
-    ('84 Floor', '84 Floor'),
-    ('85 Floor', '85 Floor'),
-    ('86 Floor', '86 Floor'),
-    ('87 Floor', '87 Floor'),
-    ('88 Floor', '88 Floor'),
-    ('89 Floor', '89 Floor'),
-    ('90 Floor', '90 Floor'),
+    ('0', 'Ground Floor'),
+    ('1', '1 Floor'),
+    ('2', '2 Floor'),
+    ('3', '3 Floor'),
+    ('4', '4 Floor'),
+    ('5', '5 Floor'),
+    ('6', '6 Floor'),
+    ('7', '7 Floor'),
+    ('8', '8 Floor'),
+    ('9', '9 Floor'),
+    ('10', '10 Floor'),
+    ('11', '11 Floor'),
+    ('12', '12 Floor'),
+    ('13', '13 Floor'),
+    ('14', '14 Floor'),
+    ('15', '15 Floor'),
+    ('16', '16 Floor'),
+    ('17', '17 Floor'),
+    ('18', '18 Floor'),
+    ('19', '19 Floor'),
+    ('20', '20 Floor'),
+    ('21', '21 Floor'),
+    ('22', '22 Floor'),
+    ('23', '23 Floor'),
+    ('24', '24 Floor'),
+    ('25', '25 Floor'),
+    ('26', '26 Floor'),
+    ('27', '27 Floor'),
+    ('28', '28 Floor'),
+    ('29', '29 Floor'),
+    ('30', '30 Floor'),
+    ('31', '31 Floor'),
+    ('32', '32 Floor'),
+    ('33', '33 Floor'),
+    ('34', '34 Floor'),
+    ('35', '35 Floor'),
+    ('36', '36 Floor'),
+    ('37', '37 Floor'),
+    ('38', '38 Floor'),
+    ('39', '39 Floor'),
+    ('40', '40 Floor'),
+    ('41', '41 Floor'),
+    ('42', '42 Floor'),
+    ('43', '43 Floor'),
+    ('44', '44 Floor'),
+    ('45', '45 Floor'),
+    ('46', '46 Floor'),
+    ('47', '47 Floor'),
+    ('48', '48 Floor'),
+    ('49', '49 Floor'),
+    ('50', '50 Floor'),
+    ('51', '51 Floor'),
+    ('52', '52 Floor'),
+    ('53', '53 Floor'),
+    ('54', '54 Floor'),
+    ('55', '55 Floor'),
+    ('56', '56 Floor'),
+    ('57', '57 Floor'),
+    ('58', '58 Floor'),
+    ('59', '59 Floor'),
+    ('60', '60 Floor'),
+    ('61', '61 Floor'),
+    ('62', '62 Floor'),
+    ('63', '63 Floor'),
+    ('64', '64 Floor'),
+    ('65', '65 Floor'),
+    ('66', '66 Floor'),
+    ('67', '67 Floor'),
+    ('68', '68 Floor'),
+    ('69', '69 Floor'),
+    ('70', '70 Floor'),
+    ('71', '71 Floor'),
+    ('72', '72 Floor'),
+    ('73', '73 Floor'),
+    ('74', '74 Floor'),
+    ('75', '75 Floor'),
+    ('76', '76 Floor'),
+    ('77', '77 Floor'),
+    ('78', '78 Floor'),
+    ('79', '79 Floor'),
+    ('80', '80 Floor'),
+    ('81', '81 Floor'),
+    ('82', '82 Floor'),
+    ('83', '83 Floor'),
+    ('84', '84 Floor'),
+    ('85', '85 Floor'),
+    ('86', '86 Floor'),
+    ('87', '87 Floor'),
+    ('88', '88 Floor'),
+    ('89', '89 Floor'),
+    ('90', '90 Floor'),
 ]
+
 
     
     
     
     AGE_CHOICES = [
         ('', 'Select an option'),
-        ('Less than one year', 'Less than one year'),
-        ('1-5 Year', '1-5 Year'),
-        ('5-10 Years', '5-10 Years'),
+        ('0-1', '0-1'),
+        ('2-5 ', '2-5'),
+        ('6-10', '6-10'),
+        ('11-15', '11-15'),
+        ('16-20', '16-20'),
         ('More than 10 Years', 'More than 10 Years')
     ]
     
     RENOVATED_CHOICES = [
         ('', 'Select an option'),
         ('Not Yet Renovated', 'Not Yet Renovated'),
-        ('1-5 Year Before', '1-5 Year Before'),
-        ('5-10 Years Before', '5-10 Years Before'),
+        ('1-5', '1-5 Year Before'),
+        ('5-10', '5-10'),
         ('More than 10 Years Before', 'More than 10 Years Before')
     ]
     
     KM_CHOICES = [
         ('', 'Select an option'),
-        ('Less than 1 Kilometer', 'Less than 1 Kilometer'),
-        ('1-5 Kilometer near', '1-5 Kilometer'),
-        ('5-10 Kilometer', '5-10 Kilometer'),
+        ('0-1', '0-1'),
+        ('2-5', '2-5'),
+        ('6-10', '6-10'),
+        ('11-15', '11-15'),
+        ('16-20', '16-20'),
         ('More than 10 Kilometer', 'More than 10 Kilometer')
     ]
     
@@ -288,6 +293,11 @@ class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     view_count = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+    days_to_sell = models.PositiveIntegerField(default=0)
+    property_tips = models.TextField(default='')
+    sale_duration_tips = models.TextField(default='')
+    
 
     def __str__(self):
         return f"Property ID {self.pk}"
@@ -318,5 +328,16 @@ class Feedback(models.Model):
 
     def __str__(self):
         return self.first_name
+    
+class Wishlist(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'property')
+
+    def __str__(self):
+        return f'{self.user.username} - {self.property.address}'
 
     

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'assets/style.css' %}">
     <title>Register</title>
     <style>
+      
       body{
         background-image: url('{% static '/assets/img/bulding.jpg' %}'); /* Replace with the path to your background image */
         background-position: center;
@@ -85,7 +86,7 @@
                             <div class="valid-feedback"></div>
                         </div>
                         <div class="input-group mb-3">
-                            <button class="btn btn-lg btn-primary w-100 fs-6" type="submit" onclick="return checkall()" >Register</button>
+                            <button class="btn btn-lg btn-primary w-100 fs-6" id="submit" type="submit" onclick="return checkall()" >Register</button>
                         </div>
                     </form>
                     <div class="row">
@@ -155,41 +156,43 @@
         }
 
         function isValidEmail(email) {
-          const validProviders = [
-              "gmail", "yahoo", "outlook", "hotmail", "aol", "icloud", "protonmail", "zoho"
-              
-          ];
-      
           const validTLDs = [
-              "com", "org", "net", "edu", "gov", "mil", "co", "info", "io", "uk", "in"
-              
+            "com", "org", "net", "edu", "gov", "mil", "co", "info", "io", "uk", "in"
           ];
-      
+        
           const emailParts = email.split("@");
           if (emailParts.length !== 2) {
-              return false; 
+            return false;
           }
-      
-          const provider = emailParts[1].split(".")[0].toLowerCase();
-          const tlds = emailParts[1].split(".").slice(1).map(tld => tld.toLowerCase());
-      
+        
+          const domainParts = emailParts[1].split(".").slice(1).map(tld => tld.toLowerCase());
+        
           const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$/;
-      
-         
-          if (tlds.some(tld => tld.includes("..")) || tlds.length > 1) {
-              return false;
+        
+          if (domainParts.length > 1 || domainParts.some(tld => tld === "")) {
+            return false;
           }
-      
-         
-          if (!validTLDs.includes(tlds[0]) || tlds.indexOf(tlds[0]) !== tlds.lastIndexOf(tlds[0])) {
-              return false;
+        
+          if (!validTLDs.includes(domainParts[0]) || domainParts.indexOf(domainParts[0]) !== domainParts.lastIndexOf(domainParts[0])) {
+            return false;
           }
-      
-          return (
-              emailRegex.test(email) &&
-              validProviders.includes(provider)
-          );
-      }
+        
+          return emailRegex.test(email);
+        }
+        
+        function validateEmail() {
+          const emailInput = document.getElementById('email');
+          if (!isValidEmail(emailInput.value)) {
+            emailInput.classList.add('is-invalid');
+            emailInput.classList.remove('is-valid');
+            return false;
+          } else {
+            emailInput.classList.remove('is-invalid');
+            emailInput.classList.add('is-valid');
+            return true;
+          }
+        }
+        
       
       function validateEmail() {
           const emailInput = document.getElementById('email');

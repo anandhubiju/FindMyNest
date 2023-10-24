@@ -179,7 +179,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mailtoshowvalidationok@gmail.com'
-EMAIL_HOST_PASSWORD = 'qtwpnirvgsxzhtdo' 
-DEFAULT_FROM_EMAIL = 'mailtoshowvalidationok@gmail.com'
+EMAIL_HOST_USER = 'findmynest.info@gmail.com'
+EMAIL_HOST_PASSWORD = 'dutaajooummvghzv' 
+DEFAULT_FROM_EMAIL = 'findmynest.info@gmail.com'
 
+
+RAZOR_KEY_ID = 'rzp_test_CHp6Ntazfu0zMF'
+RAZOR_KEY_SECRET = 'WsGrW8mFvhwavOA4X6nLKR9z'

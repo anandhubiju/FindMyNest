@@ -15,6 +15,7 @@ class PropertyForm(forms.ModelForm):
     widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
     required=False
 )
+    
         
     class Meta:
         model = Property
@@ -144,10 +145,10 @@ class PropertyForm(forms.ModelForm):
                'near_supermarket': forms.Select(attrs={
                 "class": "form-control",
                 'id':'building_age'
-            }),
-            
-            
+            }),   
         }
+        
+        
         
 
 

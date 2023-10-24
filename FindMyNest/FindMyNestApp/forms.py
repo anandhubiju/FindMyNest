@@ -12,7 +12,7 @@ class SubscriptionForm(forms.ModelForm):
             }),
             'price': forms.TextInput(attrs={
                 "class": "form-control ",
-                'id':"price",
+                'id':"price",   
                
             }),
            'validity': forms.Select(attrs={

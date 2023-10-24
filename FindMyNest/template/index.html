@@ -11,8 +11,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="{% static 'assets\images\Icon.png' %}" rel="icon">
+  <link href="{% static 'assets\images\Icon.png' %}"" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
@@ -50,6 +50,7 @@
         <span></span>
         <span></span>
       </button>
+      
       <a class="navbar-brand text-brand" href="index.html">FindM<span class="color-b">yNest</span></a>
 
       <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
@@ -77,11 +78,11 @@
           </li>
           {%  elif  user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <a class="nav-link dropdown-toggle"  href="#" id="PropertyDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'propertylist' %}">All Property</a>
+                <a class="dropdown-item" id ="All_property" href="{% url 'propertylist' %}">All Property</a>
                 {% for property_type in property_types %}
-                    <a class="dropdown-item" href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
+                    <a class="dropdown-item"  href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
                 {% endfor %}
             </div>
         </li>
@@ -89,10 +90,11 @@
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li> 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'logout' %}">Logout</a>
-              <a class="dropdown-item " href="{% url 'editprofile' %}">Profile</a>
+              <a class="dropdown-item " id="profile" href="{% url 'editprofile' %}">Profile</a>
+              <a class="dropdown-item " href="{% url 'wishlist_view' %}">wishlist</a>
             </div>
           </li>
           {% else %}
@@ -103,7 +105,7 @@
             <a class="nav-link " href="/register">Register</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link " href="{% url 'login' %}">Login</a>
+            <a class="nav-link " id=" "href="{% url 'login' %}">Login</a>
           </li>
           {% endif %}
         </ul>
@@ -371,86 +373,74 @@
 
 
 
-    <div id="generic_price_table">   
+    <div id="generic_price_table"> 
+      {% if user.is_authenticated and not user.payment_set.all %}
+
       <section>
-              <div class="container">
-                  <div class="row">
-                      <div class="col-md-12">
-                          <!--PRICE HEADING START-->
-                          <div class="price-heading clearfix">
-                              <h1>OUR PLANS</h1>
-                          </div>
-                          <!--//PRICE HEADING END-->
+          <div class="container">
+              <div class="row">
+                  <div class="col-md-12">
+                      <!--PRICE HEADING START-->
+                      <div class="price-heading clearfix">
+                          <h1>OUR PLANS</h1>
                       </div>
+                      <!--//PRICE HEADING END-->
                   </div>
               </div>
-              <div class="container">
-                  
-                  <!--BLOCK ROW START-->
-                  <div class="row">
-                    {% for i in subscription %}
-                      <div class="col-md-4">
-                      
-                        <!--PRICE CONTENT START-->
-                          <div class="generic_content clearfix">
-                              
-                              <!--HEAD PRICE DETAIL START-->
-                              <div class="generic_head_price clearfix">
-                              
-                                  <!--HEAD CONTENT START-->
-                                  <div class="generic_head_content clearfix">
-                                  
-                                    <!--HEAD START-->
-                                      <div class="head_bg"></div>
-                                      <div class="head">
-                                          <span>{{ i.sub_type }}</span>
-                                      </div>
-                                      <!--//HEAD END-->
-                                      
+          </div>
+          <div class="container">
+              <!--BLOCK ROW START-->
+              <div class="row">
+                  {% for i in subscriptions %}
+                  <div class="col-md-4">
+                      <!--PRICE CONTENT START-->
+                      <div class="generic_content clearfix">
+                          <!--HEAD PRICE DETAIL START-->
+                          <div class="generic_head_price clearfix">
+                              <!--HEAD CONTENT START-->
+                              <div class="generic_head_content clearfix">
+                                  <!--HEAD START-->
+                                  <div class="head_bg"></div>
+                                  <div class="head">
+                                      <span>{{ i.sub_type }}</span>
                                   </div>
-                                  <!--//HEAD CONTENT END-->
-                                  
-                                  <!--PRICE START-->
-                                  <div class="generic_price_tag clearfix">  
-                                      <span class="price">
-                                          <span class="sign">Rs</span>
-                                          <span class="currency">{{ i.price }}</span>
-                                          <span class="month">/{{ i.validity }}</span>
-                                      </span>
-                                  </div>
-                                  <!--//PRICE END-->
-                                  
-                              </div>                            
-                              <!--//HEAD PRICE DETAIL END-->
-                              
-                              <!--FEATURE LIST START-->
-                              <div class="generic_feature_list">
-                                <ul>
-                                    <li><span>2GB</span> Bandwidth</li>
-                                      <li><span>150GB</span> Storage</li>
-                                      <li><span>12</span> Accounts</li>
-                                      <li><span>7</span> Host Domain</li>
-                                      <li><span>24/7</span> Support</li>
-                                  </ul>
+                                  <!--//HEAD END-->
                               </div>
-                              <!--//FEATURE LIST END-->
-                              
-                              <!--BUTTON START-->
-                              <div class="generic_price_btn clearfix">
-                                <a class="" id="rzp-button1" data-amount="{{ i.price }}" href="">BUY</a>
+                              <!--//HEAD CONTENT END-->
+                              <!--PRICE START-->
+                              <div class="generic_price_tag clearfix">  
+                                  <span class="price">
+                                      <span class="sign">Rs</span>
+                                      <span class="currency">{{ i.price }}</span>
+                                      <span class="month">/{{ i.validity }}</span>
+                                  </span>
                               </div>
-                              <!--//BUTTON END-->
-                              
+                              <!--//PRICE END-->
+                          </div>                            
+                          <!--//HEAD PRICE DETAIL END-->
+                          <!--FEATURE LIST START-->
+                          <div class="generic_feature_list">
+                              <ul> 
+                                  {% for feature in features %}
+                                  <li><span>{{ feature }}</span></li>
+                                  {% endfor %}
+                              </ul>
                           </div>
-                          <!--//PRICE CONTENT END-->
-                        
+                          <!--//FEATURE LIST END-->
+                          <!--BUTTON START-->
+                          <div class="generic_price_btn clearfix">
+                              <a href="{% url 'payment' sub_id=i.id %}"><button class="btn pay-btn">Buy</button></a>
+                          </div>
+                          <!--//BUTTON END-->
                       </div>
-                      {% endfor %}  
-                  </div>  
-                  <!--//BLOCK ROW END-->
-                  
-              </div>
-          </section>             
+                      <!--//PRICE CONTENT END-->
+                  </div>
+                  {% endfor %}  
+              </div>  
+              <!--//BLOCK ROW END-->
+          </div>
+      </section>
+      {% endif %}             
       </div>
 
 
@@ -826,53 +816,62 @@
   <!-- Template Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
 
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-  <script>
-    // Assuming you have access to the user's information from the server-side
-    var user = {
-        "name": "{{ request.user.username }}", // Get the username of the logged-in user
-        "email": "{{ request.user.email }}", // Get the email of the logged-in user
-        "contact": "{{ request.user.phone_no }}" // Get the phone number of the logged-in user
+
+
+<!-- <script>
+  var options = {
+     
+    // Enter the Key ID generated from the Dashboard
+    key: "{{ razorpay_merchant_key }}",
+     
+    // Amount is in currency subunits.
+    // Default currency is INR. Hence,
+    // 50000 refers to 50000 paise
+    amount: "{{ razorpay_amount }}",
+    currency: "{{ currency }}",
+     
+    // Your/store name.
+    name: "FindMyNest",
+     
+    // Pass the `id` obtained in the response of Step 1
+    order_id: "{{ razorpay_order_id }}",
+    callback_url: "{{ callback_url }}",
+  };
+   
+  // initialise razorpay with the options.
+  var rzp1 = new Razorpay(options);
+   
+  // add event listener to the payment button.
+// Get all elements with the class "pay-btn"
+var elements = document.getElementsByClassName("pay-btn");
+
+// Loop through the elements and add a click event handler to each one
+for (var i = 0; i < elements.length; i++) {
+    elements[i].onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
     };
+}
 
-    // Initialize Razorpay with default options (you can add your specific options here)
-    var rzp1 = new Razorpay({
-        "key": "rzp_test_q6EmKYRud97Kph", // Enter the Key ID generated from the Dashboard
-        "currency": "INR",
-        "name": "FindMyNest", // Your business name
-        "description": "Subscription Payment", // Update the description as needed
-        "image": "https://example.com/your_logo",
-        "order_id": "order_9A33XWu170gUtm", // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
-        "prefill": {
-            "name": user.name, // Use the username of the logged-in user
-            "email": user.email, // Use the email of the logged-in user
-            "contact": user.contact // Use the phone number of the logged-in user
-        },
-        "theme": {
-            "color": "#3399cc"
-        }
-    });
+</script> -->
 
-    // Add click event handlers to each subscription button
-    var subscriptionButtons = document.querySelectorAll('.subscription-button');
-    subscriptionButtons.forEach(function(button) {
-        button.addEventListener('click', function(e) {
-            // Get the amount from the data-amount attribute of the clicked button
-            var amount = parseFloat(button.getAttribute('data-amount')) * 100; // Convert to paise
-
-            // Update the amount in the Razorpay options
-            rzp1.options.amount = amount;
-
-            // Open the Razorpay payment dialog
-            rzp1.open();
-
-            e.preventDefault();
-        });
-    });
+<script type="text/javascript">
+  (function(d, m){
+      var kommunicateSettings = 
+          {"appId":"29a4684195ddd415eb9355eb68c1d4d4e","popupWidget":true,"automaticChatOpenOnNavigation":true};
+      var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
+      s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
+      var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
+      window.kommunicate = m; m._globals = kommunicateSettings;
+      
+      // Auto-start a new conversation when the page is refreshed
+      if (localStorage.getItem('conversationRefreshed') !== 'true') {
+        m.kommunicate.startConversation();
+        localStorage.setItem('conversationRefreshed', 'true');
+      }
+  })(document, window.kommunicate || {});
 </script>
-
 
 
 </body>

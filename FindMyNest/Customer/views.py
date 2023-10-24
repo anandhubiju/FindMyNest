@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from requests import Request
 from django.http import JsonResponse
-from .models import Property,Image,PropertyView,Feedback
+from .models import Property,Image,PropertyView,Feedback,Wishlist
 from .forms import PropertyForm
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -9,55 +10,166 @@ from .models import Property, Image
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+import joblib
+import pandas as pd
 
 
-@login_required
+# Load the trained machine learning model
+# Load the trained machine learning model
+model = joblib.load('models/seminar.pkl')
+
+# Load label encoders
+label_encoders = {}
+categorical_columns = ["property_type", "furnished", "air_conditioner", "parking", "water_available"]
+for col in categorical_columns:
+    le = joblib.load(f'models/{col}_label_encoder.pkl')
+    label_encoders[col] = le
+
+
+# Define a function to extract numerical values and calculate the average
+def input_and_average(input_str):
+    parts = input_str.split('-')
+    values = [float(part) for part in parts if part.replace('.', '', 1).isdigit()]
+    return (sum(values) / len(values)) if values else 0.0
+
+
+# Your login_required decorator
+
 def addproperty(request):
     if request.method == 'POST':
-        print(request.POST)
-        
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            
-            property_instance = form.save(commit=False)  # Don't save it immediately
+            property_instance = form.save(commit=False)
+            property_instance.user = request.user
 
-           
-            property_instance.user = request.user 
-
-            
             selected_features = form.cleaned_data['features']
             features_str = ', '.join(selected_features)
             property_instance.features = features_str
-            
+
             selected_nearby_place = form.cleaned_data['nearby_place']
             nearby_place_str = ', '.join(selected_nearby_place)
             property_instance.nearby_place = nearby_place_str
 
-           
-            property_instance.save()
+            distance_to_major_road = input_and_average(form.cleaned_data['major_road'])
+            distance_to_supermarket = input_and_average(form.cleaned_data['near_supermarket'])
+            property_age = input_and_average(form.cleaned_data['bulding_age'])
+            
+            last_renovation_years_ago_input = form.cleaned_data['last_renovated']
+            last_renovation_years_ago_parts = last_renovation_years_ago_input.split('-')
+            last_renovation_years_ago = (int(last_renovation_years_ago_parts[0]) + int(last_renovation_years_ago_parts[1])) // 2
 
-           
+            property_type = form.cleaned_data['property_type']
+
+            if property_type == 'Apartment':
+                floor_value = form.cleaned_data['floor_no']
+            else:
+                floor_value = form.cleaned_data['floor']
+
+            if property_type in ['Commercial', 'Garage']:
+                num_bedrooms = 0
+            else:
+                num_bedrooms = form.cleaned_data['bedrooms']
+
+            furnished = 1 if 'Furnished' in selected_features else 0
+            air_conditioner = 1 if 'Air Condition' in selected_features else 0
+            parking = 1 if 'Parking' in selected_features else 0
+            water_available = 1 if 'Well(Water Availability)' in selected_features else 0
+
+            user_input_dict = {
+                'property_type': property_type,
+                'num_bedrooms': num_bedrooms,
+                'num_bathrooms': form.cleaned_data['bathrooms'],
+                'furnished': furnished,
+                'air_conditioner': air_conditioner,
+                'parking': parking,
+                'last_renovation_years_ago': last_renovation_years_ago,
+                'water_available': water_available,
+                'distance_to_major_road': [distance_to_major_road],
+                'distance_to_supermarket': [distance_to_supermarket],
+                'price': form.cleaned_data['price'],
+                'property_age': [property_age],
+                'total_rooms': form.cleaned_data['rooms'],
+                'floor': floor_value
+            }
+
+            user_input_df = pd.DataFrame(user_input_dict)
+
+            for col, le in label_encoders.items():
+                user_input_df[col] = le.transform(user_input_df[col])
+
+            sale_duration_prediction = model.predict(user_input_df)
+
+            property_instance.save()
+            property_id = property_instance.id
+
             images = request.FILES.getlist('images')
             for image in images:
-                
                 Image.objects.create(property=property_instance, images=image)
 
-           
-            return redirect('/')
+            # Initialize property_tips
+            property_tips = []
+
+            # Save the exact number of days to sell
+            exact_days_to_sell = int(sale_duration_prediction[0])
+            property_instance.days_to_sell = exact_days_to_sell
+
+            # Based on your business logic, you can generate property_tips
+            property_tips = []
+            
+            if exact_days_to_sell > 30:
+                property_tips = analyze_property_details(user_input_df.iloc[0])
+
+            # Save property_tips
+            property_instance.property_tips = ", ".join(property_tips)  # Join with commas
+
+            sale_duration_tips = []
+
+            # Generate sale_duration_tips
+            if exact_days_to_sell <= 30:
+                sale_duration_tips.append("Your property is likely to sell quickly. Ensure it's well-maintained for a smooth sale.")
+            elif exact_days_to_sell <= 60:
+                sale_duration_tips.append("Your property may take a couple of months to sell. Consider staging and effective marketing.")
+            else:
+                sale_duration_tips.append("Your property may take some time to sell. Focus on competitive pricing and marketing strategies")
+
+            # Set the sale_duration_tips field
+            property_instance.sale_duration_tips = ", ".join(sale_duration_tips)  # Join with commas
+
+            property_instance.save()
+
+            # Redirect to the property details page with tips as URL parameters
+            return redirect(reverse('property_single', args=[property_id]))
     else:
         form = PropertyForm()
 
     context = {
         'form': form,
-        
     }
     return render(request, 'addproperty.html', context)
 
 
+def analyze_property_details(property_details):
+    tips = []
 
-def payment(request):
-    
-    return render(request,'demopay.html')
+    # Example: Analyze property details like 'furnished,' 'air_conditioner,' 'parking,' etc.
+    if property_details['furnished'] == 0:
+        tips.append("Consider furnishing the property to attract more buyers/renters.")
+    if property_details['air_conditioner'] == 0:
+        tips.append("Adding air conditioning can make the property more appealing.")
+    if property_details['parking'] == 0:
+        tips.append("Providing parking can be a significant selling point.")
+    if property_details['water_available'] == 0:
+        tips.append("Ensure water availability for the property, as it is essential.")
+    # Add tips related to renovation based on the last renovation years
+    if property_details['last_renovation_years_ago'] >= 5:
+        tips.append("Consider renovating the property if it hasn't been renovated in the last 5 years.")
+
+    return tips
+
+
 
 
 def submit_comment(request):
@@ -91,13 +203,51 @@ def submit_comment(request):
 
     return render(request, 'property-single.html')
     
+def add_wishlist(request, property_id):
+    # Get the Property object based on the property_id
+    property = get_object_or_404(Property, id=property_id)
 
+    # Create a Wishlist object for the current user and the property
+    if request.user.is_authenticated:
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user, property=property)
+        if created:
+            message = f'The property "{property.address}" has been added to your wishlist.'
+        else:
+            message = f'The property "{property.address}" is already in your wishlist.'
+    else:
+        # Handle the case where the user is not authenticated
+        message = 'You need to be logged in to add properties to your wishlist.'
+
+    # You can pass the message to your template or use it as needed
+    # For now, we'll just redirect back to the propertylist view
+    return redirect('propertylist')
+
+def delete_wishlist(request, property_id):
+    wishlist_item = get_object_or_404(Wishlist, property_id=property_id, user=request.user)
+    wishlist_item.delete()
+    return redirect('propertylist')
+
+def wishlist_view(request):
+    if request.user.is_authenticated:
+        # Retrieve the wishlist items for the logged-in user
+        wishlist_items = Wishlist.objects.filter(user=request.user)
+        # Extract the properties from the wishlist items
+        wishlist_properties = [item.property for item in wishlist_items]
+        return render(request, 'wishlist.html', {'wishlist_properties': wishlist_properties})
+    else:
+        # Handle the case when the user is not logged in
+        # You can redirect them to the login page or display a message
+        return render(request, 'wishlist.html', {'wishlist_properties': None})
 
 def propertylist(request):
     properties = Property.objects.all() 
     property_types = Property.objects.values_list('property_type', flat=True).distinct()
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    wishlist_property_ids = wishlist_items.values_list('property_id', flat=True)  # Get a list of property IDs = wishlist_items.values_list('property_id', flat=True)  # Get a list of property IDs
     
-    return render(request,'propertylist.html', {'properties': properties})
+    print(wishlist_items)
+    
+    return render(request,'propertylist.html', {'properties': properties,'property_types':property_types,'wishlist_items':wishlist_items,'wishlist_property_ids':wishlist_property_ids})
 
 
 def property_list_by_type(request, property_type):
@@ -116,10 +266,26 @@ def property_list_by_type(request, property_type):
 def delete_property(request, property_id):
     property = get_object_or_404(Property, id=property_id)
 
-    if request.user != property.user:
-        pass
-    property.delete()
-    return redirect('propertylist') 
+    if request.user == property.user:
+        property.active = False
+        property.save()
+    
+    return redirect('propertylist')
+
+def add_remove_from_wishlist(request):
+    property_id = request.POST.get('property_id')
+    user = request.user
+
+    try:
+        wishlist_item = Wishlist.objects.get(user=user, property_id=property_id)
+        wishlist_item.delete()
+        added = False
+    except Wishlist.DoesNotExist:
+        Wishlist.objects.create(user=user, property_id=property_id)
+        added = True
+
+    return JsonResponse({'added': added})
+
 
 def edit_property(request, property_id):
     property = get_object_or_404(Property, id=property_id)
@@ -160,9 +326,13 @@ def edit_property(request, property_id):
 
 
 def propertysingle(request, property_id):
+    # Retrieve tips from URL parameters
+
+
+    user = request.user
     property = get_object_or_404(Property, id=property_id)
     feedbacks = Feedback.objects.filter(property=property).order_by('-comment_date')
-    
+
     if request.user != property.user:
         # Increment the view count
         property.view_count += 1
@@ -171,15 +341,60 @@ def propertysingle(request, property_id):
         # Record the user's view
         if request.user.is_authenticated:
             PropertyView.objects.get_or_create(property=property, user=request.user)
-        
+
     images = Image.objects.filter(property=property)
     excluded_property_types = ['Commercial', 'Office', 'Garage']
     features = property.features.split(', ') if property.features else []
     nearby_place = property.nearby_place.split(', ') if property.nearby_place else []
-    
-    return render(request, 'property-single.html', {'property': property, 'images': images ,
-    'features': features,'nearby_place': nearby_place,'excluded_property_types':excluded_property_types,'feedbacks': feedbacks,})
+    property_tips = property.property_tips.split(', ') if property.property_tips else []
+    sale_duration_tips = property.sale_duration_tips.split(', ') if property.sale_duration_tips else []
 
+    context = {
+        'property': property,
+        'images': images,
+        'user': user,
+        'features': features,
+        'nearby_place': nearby_place,
+        'excluded_property_types': excluded_property_types,
+        'feedbacks': feedbacks,
+        'sale_duration_tips': sale_duration_tips,
+        'property_tips': property_tips,
+    }
+
+    return render(request, 'property-single.html', context)
+    
+
+
+def viewcontact(request, property_id):
+    user = request.user
+    property = get_object_or_404(Property, id=property_id)
+    
+    # Assuming you have a function send_welcome_email that sends the welcome email
+    send_welcome_email(property.whatsapp_no, user.email, property.owner_name)
+    
+    # Return an empty HttpResponse with a success message
+    
+    return HttpResponseRedirect(reverse('property_single', args=[property_id]) + '?alert=Details_Emailed')
+
+def send_welcome_email(whatsapp_no, email, owner_name):
+    subject = 'Welcome to FindMyNest'
+    message = f"Hello {email},\n\n"
+    message += f"Welcome to FindMyNest, your platform for finding your dream property. We are excited to have you join us!\n\n"
+    message += f"Here are the contact details of the property owner:\n\n"
+    message += f"Owner Name: {owner_name}\n"
+    message += f"WhatsApp No: {whatsapp_no}\n\n"
+    message += "Please feel free to contact the property owner for more information or to schedule a viewing of the property.\n\n"
+    message += "Thank you for choosing FindMyNest. We wish you the best in your property search!\n\n"
+    message += "Warm regards,\nThe FindMyNest Team\n\n"
+    
+    from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
+    recipient_list = [email]
+    
+    send_mail(subject, message, from_email, recipient_list)
+    
+    
+    
+    
 def like_feedback(request, feedback_id):
     # Check if the request is a POST request
     if request.method == 'POST':
@@ -240,6 +455,9 @@ def update_property(request, property_id):
         form = PropertyForm(instance=property)
 
     return render(request, 'update_property.html', {'form': form, 'property': property })
+
+
+
 
 
 

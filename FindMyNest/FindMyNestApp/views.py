@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from UserApp.models import CustomUser
 from Customer.models import Property
-from .models import Subscription
+from .models import Subscription,Payment
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
@@ -10,32 +10,130 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.http import HttpResponse
+from django.shortcuts import render
+import razorpay
+from django.core.mail import send_mail
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import render
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import io
+
+
 
 User = get_user_model()
 
 def index(request):
-    features = []
-    subscription = Subscription.objects.all()
-    
-    
+    # Check if the user is authenticated and logged in with Google
     if request.user.is_authenticated:
-        # Check if the user is authenticated and logged in with Google
         if request.user.user_type == CustomUser.ADMIN:
             return redirect(reverse('admindashboard'))
-        
         elif not request.user.phone_no:
-            # If the user hasn't provided a phone number, redirect to profile completion
             return render(request, 'profile_completion.html', {'user': request.user})
-    
-    
 
     # Get the 5 most recently added properties based on the 'created_at' field
     recent_properties = Property.objects.order_by('-created_at')[:5]
-    
+
+    # Retrieve subscription features from a specific Subscription instance
+    # # You may want to retrieve a specific subscription
+    subscription = Subscription.objects.values().first()
+    payment = Payment.objects.filter(payment_status=Payment.PaymentStatusChoices.SUCCESSFUL)
+# Load the first subscription
+
+    if subscription:
+        features_str = subscription['features']  # Get the 'features' field as a string
+        features = features_str.split(',') if features_str else []
+    else:
+        features = []
+
+    # Get unique property types
     property_types = Property.objects.values_list('property_type', flat=True).distinct()
+
+    # For Razorpay integration
     
 
-    return render(request, 'index.html', {'user': request.user, 'recent_properties': recent_properties , 'subscription':subscription,'property_types': property_types,})
+    # Retrieve subscription data
+    subscriptions = Subscription.objects.all()
+
+    # Prepare the context data
+    context = {
+        'user': request.user,
+        'recent_properties': recent_properties,
+        'property_types': property_types,
+        'razorpay_merchant_key': settings.RAZOR_KEY_ID,
+        'subscriptions': subscriptions,
+        'features': features,# Add features to the context
+        'payment':payment
+    }
+
+    return render(request, 'index.html', context=context)
+
+def payment(request, sub_id):
+    # Use get_object_or_404 to get the Subscription object based on sub_id
+        # Retrieve subscription features from a specific Subscription instance
+    # You may want to retrieve a specific subscription
+    subscriptions = Subscription.objects.all()
+    
+    sub_type = Subscription.objects.get(pk=sub_id)
+
+    if sub_type:
+        features_str = sub_type.features  # Get the 'features' field as a string
+        features = features_str.split(',') if features_str else []
+    else:
+        features = []
+
+    # Get unique property types
+    property_types = Property.objects.values_list('property_type', flat=True).distinct()
+
+    # For Razorpay integration
+    currency = 'INR'
+    amount = sub_type.price  # Get the subscription price
+    amount_in_paise = int(amount * 100)  # Convert to paise
+
+    # Create a Razorpay Order
+    razorpay_order = razorpay_client.order.create(dict(
+        amount=amount_in_paise,
+        currency=currency,
+        payment_capture='0'
+    ))
+
+    # Order ID of the newly created order
+    razorpay_order_id = razorpay_order['id']
+    callback_url = '/paymenthandler/'  # Define your callback URL here
+
+
+    payment = Payment.objects.create(
+        user=request.user,
+        razorpay_order_id=razorpay_order_id,
+        payment_id="",
+        amount=amount,
+        currency=currency,
+        payment_status=Payment.PaymentStatusChoices.PENDING,
+    )
+    payment.sub_type.add(sub_type)
+
+    # Prepare the context data
+    context = {
+        'user': request.user,
+        'property_types': property_types,
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_merchant_key': settings.RAZOR_KEY_ID,
+        'razorpay_amount': amount_in_paise,
+        'currency': currency,
+        'amount': amount_in_paise / 100,
+        'callback_url': callback_url,
+        'subscriptions': subscriptions,
+        'features': features,  # Add features to the context
+        'sub_type': sub_type,
+    }
+
+    return render(request, 'Payment.html', context)
+
+
 
 def about(request):
     property_types = Property.objects.values_list('property_type', flat=True).distinct()
@@ -73,6 +171,112 @@ def add_subscription(request):
     return render(request, 'add_subscription.html', {'form': form})
  # Replace 'search.html' with your template
 
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+
+@csrf_exempt
+def paymenthandler(request):
+    # only accept POST request.
+    if request.method == "POST":
+        try:
+            # get the required parameters from post request.
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+
+            # verify the payment signature.
+            result = razorpay_client.utility.verify_payment_signature(params_dict)
+            payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+            if result is not None:
+                payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+                amount = int(payment.amount * 100)  # Convert Decimal to paise
+                try:
+                    # capture the payment
+                    razorpay_client.payment.capture(payment_id, amount)
+                    payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+
+                    # Update the order with payment ID and change status to "Successful"
+                    payment.payment_id = payment_id
+                    payment.payment_status = Payment.PaymentStatusChoices.SUCCESSFUL
+                    payment.save()
+
+                    # Send the welcome email with PDF invoice
+                    send_welcome_email(payment.user.username, payment.sub_type, payment.amount, payment.user.email, payment,)
+                    
+                    # render success page on successful capture of payment
+                    return render(request, 'index.html')
+                except:
+                    # if there is an error while capturing payment.
+                    payment.payment_status = Payment.PaymentStatusChoices.FAILED
+                    return render(request, 'paymentfail.html')
+            else:
+                # if signature verification fails.
+                payment.payment_status = Payment.PaymentStatusChoices.FAILED
+                return render(request, 'paymentfail.html')
+        except:
+            # if we don't find the required parameters in POST data
+            return HttpResponseBadRequest()
+    else:
+        # if other than POST request is made.
+        return HttpResponseBadRequest()
+
+    
+def send_welcome_email(username, sub_type, amount, email, payment):
+    subject = 'Welcome to FindMyNest'
+    message = f"Hello {username},\n\n"
+    message += f"Welcome to FindMyNest, your platform for finding your dream property. We are excited to have you join us!\n\n"
+    
+    # Retrieve the associated subscription object
+    subscription = sub_type.first()  # Assuming sub_type is a ManyToMany field
+
+    if subscription:
+        message += f"You have subscribed to the {subscription.sub_type} plan, which is valid for {subscription.validity}.\n\n"
+    
+    message += "Please feel free to contact the property owner for more information or to schedule a viewing of the property.\n\n"
+    message += "Thank you for choosing FindMyNest. We wish you the best in your property search!\n\n"
+    message += "Warm regards,\nThe FindMyNest Team\n\n"
+    
+    from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
+    recipient_list = [email]
+
+    # Create a PDF invoice and attach it to the email
+    pdf_invoice = generate_pdf_invoice(username, sub_type, amount, payment)
+    email = EmailMessage(subject, message, from_email, recipient_list)
+    email.attach(f"{username}_invoice.pdf", pdf_invoice, 'application/pdf')
+
+    # Send the email
+    email.send()
+
+def generate_pdf_invoice(username, sub_type, amount, payment):
+    # Create a PDF document using xhtml2pdf
+    template_path = "invoice1.html"  # Replace with the path to your HTML template
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{username}_invoice.pdf"'
+
+    template = get_template(template_path)
+    context = {
+        'username': username,
+        'sub_type': sub_type,
+        'amount': amount,
+        'payment': payment # Format the timestamp as desired
+        }
+    html = template.render(context)
+
+    pdf_buffer = io.BytesIO()
+    pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), pdf_buffer)
+
+    pdf_content = pdf_buffer.getvalue()
+    pdf_buffer.close()
+
+    return pdf_content
+
+
+
 
 @login_required
 def search_property(request):
@@ -104,3 +308,5 @@ def search_property(request):
         property_data.append(property_dict)
 
     return JsonResponse({'property': property_data})
+
+
