@@ -89,6 +89,12 @@
            <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li> 
+          <li class="nav-item">
+            <a class="nav-link " href="{% url 'agentlist' %}">Agent</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link " href="{% url 'renForm' %}">Rent Agreement</a>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
             <div class="dropdown-menu">
@@ -260,7 +266,6 @@
         </div>
       </div>
     </section><!-- End Services Section -->
-
     <!-- ======= Latest Properties Section ======= -->
     <section class="section-property section-t8">
       <div class="container">
@@ -873,7 +878,18 @@ for (var i = 0; i < elements.length; i++) {
   })(document, window.kommunicate || {});
 </script>
 
+<script>
+  function redirectToWhatsApp() {
+      // Replace '1234567890' with the desired WhatsApp number
+      var phoneNumber = '9544386239';
 
+      // Create the WhatsApp link
+      var whatsappLink = 'https://wa.me/' + phoneNumber;
+
+      // Open the WhatsApp link in a new tab or window
+      window.open(whatsappLink, '_blank');
+  }
+</script>
 </body>
 
 </html>

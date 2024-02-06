@@ -3,6 +3,12 @@
 <html lang="en">
   <head>
     <title>FindMyNest</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+  
+    <!-- Favicons -->
+    <link href="{% static 'assets\images\Icon.png' %}" rel="icon">
+    <link href="{% static 'assets\images\Icon.png' %}"" rel="apple-touch-icon">
 <style>
   .custom-container {
     width: 1500px; /* Set your desired width in pixels or any other valid CSS unit */
@@ -392,12 +398,13 @@
                                 </span>
                             {% endif %}
                         </td>
-                          <td style="border: .5px solid rgb(186, 240, 186); "> 
-                            <a href="{% url 'adelete_property' property.id %}" data-delete-url="{% url 'adelete_property' property.id %}" class="delete-user-link">
-                              <button class="btn btn-danger">
-                                <i class="bi bi-trash3-fill"></i>
-                              </button>
-                            </a><!-- Delete button with a link to delete the property -->
+                        <td style="border: .5px solid rgb(186, 240, 186); ">
+                          <form method="post" action="{% url 'adelete_property' property.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                              <i class="bi bi-trash3-fill"></i>
+                            </button>
+                          </form>
                         </td>
                         </tr>
                         {% endfor %}

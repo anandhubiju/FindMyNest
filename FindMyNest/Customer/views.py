@@ -634,6 +634,10 @@ def update_property(request, property_id):
 
     return render(request, 'update_property.html', {'form': form, 'property': property })
 
+def renForm(request):
+    property_types = Property.objects.values_list('property_type', flat=True).distinct()
+    return render(request,'Rental Form.html',{'property_types': property_types})
+
 
 
 

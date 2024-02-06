@@ -89,11 +89,13 @@ class PropertyForm(forms.ModelForm):
             'property_type': forms.Select(attrs={
                 "class": "form-control ",
                 'id':'propertyType',
-                'onchange':'toggleFields()'
+                'onchange':'toggleFields()',
+                 
             }),
             'status': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'status'
+                'id':'status',
+                  
             }),
             'tax_status': forms.Select(attrs={
                 "class": "form-control ",
@@ -105,17 +107,19 @@ class PropertyForm(forms.ModelForm):
             }),
              'bathrooms': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'bathrooms'
+                'id':'bathrooms',
+                'required': True  
             }),
             'bedrooms': forms.Select(attrs={
                 "class": "form-control ",
                 'id':'bedrooms',
+               
                 
             }),
             'rooms': forms.Select(attrs={
                 "class": "form-control ",
                 'id':'rooms',
-                'required': False  
+                'required': True  
             }),
             'garage': forms.Select(attrs={
                 "class": "form-control ",
@@ -128,31 +132,38 @@ class PropertyForm(forms.ModelForm):
             }),
             'floor': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'floor'
+                'id':'floor',
+                 
             }),
              'floor_no': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'floor_no'
+                'id':'floor_no',
+                  
             }),
             'last_renovated': forms.Select(attrs={
                 "class": "form-control ",
-                'id':'last_renovated'
+                'id':'last_renovated',
+                'required': True  
             }),
             'bulding_age': forms.Select(attrs={
                 "class": "form-control",
-                'id':'building_age'
+                'id':'building_age',
+                'required': True  
             }),
              'major_road': forms.Select(attrs={
                 "class": "form-control",
-                'id':'building_age'
+                'id':'building_age',
+                'required': True  
             }),
               'near_hospital': forms.Select(attrs={
                 "class": "form-control",
-                'id':'building_age'
+                'id':'building_age',
+                'required': True  
             }),
                'near_supermarket': forms.Select(attrs={
                 "class": "form-control",
-                'id':'building_age'
+                'id':'building_age',
+                'required': True  
             }),   
         }
         

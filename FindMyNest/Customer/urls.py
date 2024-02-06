@@ -16,6 +16,8 @@ urlpatterns = [
     path('delete_wishlist/<int:property_id>/', views.delete_wishlist, name='delete_wishlist'),
     path('wishlist_view/',views.wishlist_view,name='wishlist_view'),
     path('viewcontact/<int:property_id>/', views.viewcontact, name='viewcontact'),
+    path('renForm/',views.renForm,name='renForm'), 
+
 
     
 ]

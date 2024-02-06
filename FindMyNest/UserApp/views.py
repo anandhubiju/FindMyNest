@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from .manager import UserManager
 from django.shortcuts import render, get_object_or_404
 from django.contrib  import messages,auth
-from .models import CustomUser,UserProfile
+from .models import CustomUser,UserProfile,AgentProfile
 from FindMyNestApp.models import Subscription
 from Customer.models import Property
 from FindMyNestApp.models import Payment
@@ -122,6 +122,10 @@ def register(request):
                 return response
 
     return render(request, 'register.html')
+
+
+
+
       
 def reset_password(request):
     return redirect('reset_password.html')
@@ -184,51 +188,72 @@ def subscription(request):
     
     return render(request, 'Subscription.html', context)
 
- 
+
 def editprofile(request):
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
     user_properties = Property.objects.filter(user=request.user)
+    agent_profile = None  # Initialize agent_profile to None
+
+    if user.user_type == CustomUser.AGENT:
+        agent_profile = AgentProfile.objects.get(user=user)
 
     if request.method == 'POST':
-        # Get the phone number entered by the user
         new_phone_no = request.POST.get('phone_no')
-
-        # Check if the phone number already exists for a different user
         existing_user = UserProfile.objects.filter(user__phone_no=new_phone_no).exclude(user=request.user).first()
+
         if existing_user:
             error_message = "Phone number is already registered by another user."
             return HttpResponseRedirect(reverse('editprofile') + f'?alert={error_message}')
-        
+
         if new_phone_no:
             user.phone_no = new_phone_no
             user.save()
 
-        # Update user fields
         user.first_name = request.POST.get('first_name')
         user.last_name = request.POST.get('last_name')
         user.save()
+        
+        if user.user_type == user.AGENT:
+            agent_profile.bio = request.POST.get('bio')
+            agent_profile.Dcase_no = request.POST.get('total-cases')
+            agent_profile.experience = request.POST.get('exp')
+            agent_profile.working_area = request.POST.get('working_area')
+            agent_profile.save()
 
         new_profile_pic = request.FILES.get('profile_pic')
         if new_profile_pic:
             user_profile.profile_pic = new_profile_pic
 
-        # Update user profile fields
         user_profile.country = request.POST.get('country')
         user_profile.state = request.POST.get('state')
         user_profile.city = request.POST.get('city')
         user_profile.pin_code = request.POST.get('pin_code')
         user_profile.save()
 
+        # Check if the user type is Agent and save the username
+        if user.user_type == user.AGENT and user_profile.profile_editable:
+            new_username = request.POST.get('username')
+            if new_username and not User.objects.filter(username=new_username).exists():
+                user.username = new_username
+                user.save()
+                user_profile.profile_editable = False
+                user_profile.save()
+            else:
+                error_message = "Username is already registered by another user."
+                return HttpResponseRedirect(reverse('editprofile') + f'?alert={error_message}')
+
         return redirect('editprofile')
 
     context = {
         'user': user,
         'user_profile': user_profile,
+        'agent_profile': agent_profile,
         'user_properties': user_properties
     }
 
     return render(request, 'editprofile.html', context)
+
 
 
 
@@ -333,10 +358,9 @@ def deleteUser(request, delete_id):
     return redirect('users')
 
 def delete_property(request, property_id):
-
     property_obj = get_object_or_404(Property, id=property_id)
 
-    if request.user == property_obj.user:
+    if request.method == 'POST' and request.user == property_obj.user:
         property_obj.active = False
         property_obj.save()
         

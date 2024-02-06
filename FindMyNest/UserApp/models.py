@@ -6,10 +6,12 @@ from .manager import UserManager
 class CustomUser(AbstractUser):
     CUSTOMER = 1
     ADMIN = 2
+    AGENT =3
 
     ROLE_CHOICE = (
         (CUSTOMER, 'Customer'),
         (ADMIN,'Admin'),
+        (AGENT,'Agent'),  
     )
 
 
@@ -39,12 +41,36 @@ class UserProfile(models.Model):
     pin_code = models.CharField(max_length=6, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    profile_editable = models.BooleanField(default=True)
     
     def __str__(self):
         if self.user:
             return self.user.username
         else:
             return "UserProfile with no associated user"
+        
+class AgentProfile(models.Model):
+    
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    bio = models.CharField(max_length=100, blank=True, null=True)
+    Dcase_no = models.CharField(max_length=15, blank=True, null=True)
+    experience = models.CharField(max_length=15, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    view_count = models.PositiveIntegerField(default=0)
+    working_area = models.CharField(max_length=100, blank=True, null=True)
+    
+    def __str__(self):
+        if self.user:
+            return self.user.username
+        else:
+            return "UserProfile with no associated user"
+        
+class AgentView(models.Model):
+    agentProfile = models.ForeignKey('AgentProfile', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
     
     
     

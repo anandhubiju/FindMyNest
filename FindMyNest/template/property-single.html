@@ -6,6 +6,13 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
+  <title>FindMyNest</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets\images\Icon.png' %}" rel="icon">
+  <link href="{% static 'assets\images\Icon.png' %}"" rel="apple-touch-icon">
 
   <style>
      /* Adjust the card's background color, padding, and box shadow */
@@ -448,23 +455,23 @@
                       {% endif %}
                       <li class="d-flex justify-content-between">
                         <strong>Bulding Age:</strong>
-                        <span>{{property.bulding_age}}</span>
+                        <span>{{property.bulding_age}} Years</span>
                       </li>
                       <li class="d-flex justify-content-between">
                         <strong>Last Renovated:</strong>
-                        <span>{{property.last_renovated}}</span>
+                        <span>{{property.last_renovated}} Years Ago</span>
                       </li>
                       <li class="d-flex justify-content-between">
                         <strong>Major Road:</strong>
-                        <span>{{property.major_road}}</span>
+                        <span>{{property.major_road}} Km</span>
                       </li>
                       <li class="d-flex justify-content-between">
                         <strong>Nearest Hospital:</strong>
-                        <span>{{property.near_hospital}}</span>
+                        <span>{{property.near_hospital}} Km</span>
                       </li>
                       <li class="d-flex justify-content-between">
                         <strong>Nearest Super Market:</strong>
-                        <span>{{property.near_supermarket}}</span>
+                        <span>{{property.near_supermarket}} Km</span>
                       </li>
                       <li class="d-flex justify-content-between ">
                         <strong>Location:</strong>
@@ -473,12 +480,12 @@
                       {% if property.property_type == 'Apartment' %}
                       <li class="d-flex justify-content-between">
                           <strong>Floor Number:</strong>
-                          <span>{{ property.floor_no }}</span>
+                          <span>{{ property.floor_no }} Floor</span>
                       </li>
                       {% else %}
                       <li class="d-flex justify-content-between">
                           <strong>Floor:</strong>
-                          <span>{{ property.floor }}</span>
+                          <span>{{ property.floor }} Floor</span>
                       </li>
                       {% endif %}
                     </ul>
@@ -496,17 +503,17 @@
                             <!-- Add contact details here -->
                             <center>
                             <div class="form-group col-md-6 pd-20">
-                              <label class="mt-2 mb-1">Pin Code</label>
+                              <label class="mt-2 mb-1">Owner Name</label>
                               <input type="text" id="pincode" name="pin_code" class="form-control" value="{{ property.owner_name }}">
                               <span id="pincode-error"></span>
                           </div>
                           <div class="form-group col-md-6 pd-20">
-                            <label class="mt-2 mb-1">Pin Code</label>
+                            <label class="mt-2 mb-1">WhatsApp Number</label>
                             <input type="text" id="pincode" name="pin_code" class="form-control" value="{{ property.whatsapp_no }}">
                             <span id="pincode-error"></span>
                         </div>
                         <div class="form-group col-md-6 pd-20">
-                          <label class="mt-2 mb-1">Pin Code</label>
+                          <label class="mt-2 mb-1">Email</label>
                           <input type="text" id="pincode" name="pin_code" class="form-control" value="{{ user.email }}">
                           <span id="pincode-error"></span>
                       </div>
@@ -592,6 +599,8 @@
                 </div>
             </div>
             {% endif %}
+          {% if property.days_to_sell < 30 %}
+          {% else %}
           <div class="row section-t3">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
               <!-- Property Details Tips -->
@@ -605,6 +614,7 @@
               </div>
           </div>
           </div>
+          {% endif %}
           <div class="col-md-10 offset-md-1">
             <ul class="nav nav-pills-a nav-pills mb-3 section-t3" id="pills-tab" role="tablist">
               <li class="nav-item">

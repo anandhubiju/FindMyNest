@@ -414,10 +414,18 @@
                                         <h3>{{ user.username }}</h3>
                                         <div class="frm_submit_wrap">
                                             <div class="row">
-                                                <div class="form-group col-md-6 pd-20" id="successMessage">
-                                                    <label class="mt-2 mb-1">UserName</label>
+                                              <div class="form-group col-md-6 pd-20" id="successMessage">
+                                                <label class="mt-2 mb-1">UserName</label>
+                                                {% if user.user_type == user.AGENT %}
+                                                    {% if user_profile.profile_editable %}
+                                                        <input type="text" name="username" class="form-control" value="{{ user.username }}">
+                                                    {% else %}
+                                                        <input type="text" name="username" class="form-control" value="{{ user.username }}" disabled>
+                                                    {% endif %}
+                                                {% else %}
                                                     <input type="text" name="username" class="form-control" value="{{ user.username }}" disabled>
-                                                </div>
+                                                {% endif %}
+                                             </div>
                                                 <div class="form-group col-md-6 pd-20">
                                                     <label class="mt-2 mb-1">Email</label>
                                                     <input type="text" name="email" class="form-control" value="{{ user.email }}" disabled>
@@ -457,9 +465,35 @@
                                                     <input type="text" id="pincode" name="pin_code" class="form-control" value="{{ user_profile.pin_code }}">
                                                     <span id="pincode-error"></span>
                                                 </div>
+                                                {% if user.user_type == user.AGENT %}
+                                                <div class="form-group col-md-6 pd-20">
+                                                  <label class="mt-2 mb-1">Experience</label>
+                                                  <input type="text" id="exp" name="exp" class="form-control" value="{{ agent_profile.experience }}">
+                                                  <span id="exp-error"></span>
+                                              </div>
+                                              <div class="form-group col-md-6 pd-20">
+                                                <label class="mt-2 mb-1">Total Case Dealed</label>
+                                                <input type="text" id="total-cases" name="total-cases" class="form-control" value="{{ agent_profile.Dcase_no }}">
+                                                <span id="totalCasesError"></span>
                                             </div>
+                                            <div class="form-group col-md-6 pd-20">
+                                              <label class="mt-2 mb-1">Working Area</label>
+                                              <input type="text" id="working_area" name="working_area" class="form-control" value="{{ agent_profile.working_area }}">
+                                              <span id="working_areaError"></span>
+                                          </div>
+                                                <div class="form-group col-md-6 pd-20">
+                                                  <label class="mt-2 mb-1">Bio</label>
+                                                  <textarea id="bio" name="bio" class="form-control">{{ agent_profile.bio }}</textarea>
+                                                  <div id="bio-error" class="error"></div>
+                                                </div>
+                                            </div>
+                                            {% else %}
+                                           
+                                        {% endif %}
                                         </div>
                                     </div>
+                                    <br>
+                                    <br>
                                     <div class="form-group col-lg-12 col-md-12 text-center">
                                         <button class="btn btn-success" onclick="checkall()" type="submit">Save</button>
                                     </div>
@@ -744,6 +778,13 @@
         const pincodeInput = document.getElementById('pincode');
         const phoneInput = document.getElementById('phone');
         const form = document.getElementById('save');
+        const expInput = document.getElementById('exp');
+        const totalCasesInput = document.getElementById('total-cases');
+        const bioInput = document.getElementById('bio');
+        const working_areaInput = document.getElementById('working_area');
+
+
+        
 
         // Function to validate image files onchange
         function validateImageFiles() {
@@ -860,7 +901,24 @@
                   return true;
               }
           }
-  
+          function validateworking_area() {
+            const working_areaInput = twonInput.value.trim(); // Get the city value
+            const working_areaError = document.getElementById('working_area-error');
+        
+            // Regular expression to allow alphabetic characters and spaces
+            const alphaRegex = /^[A-Za-z\s]+$/;
+        
+            if (!working_areaInput) {
+              working_areaError.innerText = 'Please enter a city.';
+                return false;
+            } else if (!alphaRegex.test(working_areaInput)) {
+              working_areaError.innerText = 'City name should contain only alphabetic characters and spaces.';
+                return false;
+            } else {
+              working_areaError.innerText = ''; // Clear the error message
+                return true;
+            }
+        }
           // Function to validate pincode onkeyup
           function validatePincode() {
               const pincodeInputValue = pincodeInput.value.trim(); // Get the pincode value
@@ -935,6 +993,64 @@
               return true; // Clear the error message
           }
       }
+
+      function validateBio() {
+        const bioInputValue = document.getElementById('bio').value.trim();
+        const bioError = document.getElementById('bio-error');
+        
+        // Ensure that bio is not empty
+        if (!bioInputValue) {
+            bioError.innerText = 'Please enter your bio.';
+            return false;
+        } 
+        // Add your specific validation logic for the bio textarea
+        // For example, ensure that the length is between 50 and 500 characters
+        else if (bioInputValue.length < 10 || bioInputValue.length > 15) {
+            bioError.innerText = 'Bio should be between 10 and 15 characters.';
+            return false;
+        } else {
+            bioError.innerText = '';
+            return true; // Clear the error message
+        }
+    }
+
+    function validateExperience() {
+      const expInputValue = document.getElementById('exp').value.trim();
+      const expError = document.getElementById('exp-error');
+      
+      // Assuming experience should be a positive integer
+      const expRegex = /^\d+$/;
+
+      if (!expInputValue) {
+          expError.innerText = 'Please enter your experience.';
+          return false;
+      } else if (!expRegex.test(expInputValue)) {
+          expError.innerText = 'Experience should be a positive integer.';
+          return false;
+      } else {
+          expError.innerText = '';
+          return true; // Clear the error message
+      }
+  }
+
+  function validateTotalCases() {
+      const totalCasesInputValue = document.getElementById('total-cases').value.trim();
+      const totalCasesError = document.getElementById('total-cases-error');
+      
+      // Assuming total cases should be a positive integer
+      const totalCasesRegex = /^\d+$/;
+
+      if (!totalCasesInputValue) {
+          totalCasesError.innerText = 'Please enter the total number of cases dealt.';
+          return false;
+      } else if (!totalCasesRegex.test(totalCasesInputValue)) {
+          totalCasesError.innerText = 'Total cases should be a positive integer.';
+          return false;
+      } else {
+          totalCasesError.innerText = '';
+          return true; // Clear the error message
+      }
+  }
             
         function hasValidationErrors() {
           const firstNameError = document.getElementById('first-name-error');
@@ -944,7 +1060,10 @@
           const imagesError = document.getElementById('images-error');
           const countryError = document.getElementById('country-error');
           const stateError = document.getElementById('state-error');
-      
+          const bioError = document.getElementById('bioError');
+          const totalCasesError = document.getElementById('totalCasesError');
+          const expError = document.getElementById('expError');
+          const working_areaError = document.getElementById('working_areaError');
           // Check if any of the error elements contains text (validation error message)
           return (
               firstNameError.innerText ||
@@ -955,6 +1074,9 @@
               countryError.innerText ||
               stateError.innerText
               || phoneError.innerText
+              || bioError.innerText
+              || totalCasesError.innerText
+              || expError.innerText|| working_areaError.innerText
           );
       }
   
@@ -987,6 +1109,18 @@
                 if (lastNameError.innerText) {
                     lastNameInput.value = '';
                 }
+                if (bioError.innerText) {
+                  bioInput.value = '';
+              }
+              if (totalCasesError.innerText) {
+                totalCasesInput.value = '';
+            }
+            if (expError.innerText) {
+              expInput.value = '';
+          }
+          if (working_areaError.innerText) {
+            working_areaError.value = '';
+        }
             }
         });
   
@@ -999,6 +1133,10 @@
           twonInput.addEventListener('keyup', validateTwon);
           pincodeInput.addEventListener('keyup', validatePincode);
           phoneInput.addEventListener('input', validatePhone);
+          bioInput.addEventListener('keyup', validateBio);
+          expInput.addEventListener('keyup', validateExperience);
+          totalCasesInput.addEventListener('keyup', validateTotalCases);
+          working_areaInput.addEventListener('keyup', validateworking_area);
       });
 
 </script>
@@ -1017,6 +1155,14 @@
           }, 5000); // Adjust the time as needed (5 seconds in this example)
       }
   });
+
+  var user_type = 'Agent';
+
+    // Check if the user_type is 'Agent' and enable the input box.
+    if (user_type === 'Agent') {
+        document.getElementById('usernameInput').removeAttribute('disabled');
+    }
+
 </script>
 
 

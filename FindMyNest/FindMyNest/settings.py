@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     
 ]
 
@@ -181,7 +182,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'findmynest.info@gmail.com'
 EMAIL_HOST_PASSWORD = 'dutaajooummvghzv' 
-DEFAULT_FROM_EMAIL = 'findmynest.info@gmail.com'
+
 
 
 RAZOR_KEY_ID = 'rzp_test_CHp6Ntazfu0zMF'
