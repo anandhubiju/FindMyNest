@@ -7,11 +7,13 @@ class CustomUser(AbstractUser):
     CUSTOMER = 1
     ADMIN = 2
     AGENT =3
+    EXECUTIVE =4
 
     ROLE_CHOICE = (
         (CUSTOMER, 'Customer'),
         (ADMIN,'Admin'),
-        (AGENT,'Agent'),  
+        (AGENT,'Agent'),
+        (EXECUTIVE,'Executive'),  
     )
 
 
@@ -70,6 +72,20 @@ class AgentView(models.Model):
     agentProfile = models.ForeignKey('AgentProfile', on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    
+
+class ExecutiveProfile(models.Model):
+    
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    Dcase_no = models.CharField(max_length=15, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        if self.user:
+            return self.user.username
+        else:
+            return "UserProfile with no associated user"
     
     
     

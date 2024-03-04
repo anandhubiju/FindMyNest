@@ -6,13 +6,13 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>EstateAgency Bootstrap Template - Agent Single</title>
+  <title>FindMyNest</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
-  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+  <link href="{% static 'assets\images\Icon.png' %}" rel="icon">
+  <link href="{% static 'assets\images\Icon.png' %}"" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
@@ -148,10 +148,6 @@
             <a class="nav-link active" href="{% url 'index' %}">Home</a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'about' %}">About</a>
-          </li>
-
           {% if user.is_superuser %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
@@ -175,12 +171,32 @@
                 {% endfor %}
             </div>
         </li>
+        
            <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li> 
           <li class="nav-item">
             <a class="nav-link " href="{% url 'agentlist' %}">Agent</a>
           </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Home Loan</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'home_loan_application' %}">Apply Loan</a>
+              <a class="dropdown-item " id="profile" href="{% url 'mortgage_calculator' %}">Calculate Home Loan EMI</a>
+            </div>
+          </li>
+
+          
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property Services</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'addproperty' %}">Post Property</a>
+              <a class="dropdown-item " href="{% url 'renForm' %}">Rent Agreement</a>
+            </div>
+          </li>
+
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
             <div class="dropdown-menu">
@@ -204,8 +220,7 @@
 
       </div>
     </div>
-  </nav>
-  <!-- End Header/Navbar -->
+  </nav><!-- End Header/Navbar -->
 
   <main id="main">
 
@@ -635,21 +650,23 @@
         <div class="col-sm-12 col-md-4">
           <div class="widget-a">
             <div class="w-header-a">
-              <h3 class="w-title-a text-brand">EstateAgency</h3>
+              <h3 class="w-title-a text-brand">FindMyNest</h3>
             </div>
             <div class="w-body-a">
               <p class="w-text-a color-text-a">
-                Enim minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip exea commodo consequat duis
-                sed aute irure.
+                FindMyNest is an innovative online platform designed to simplify the process of property management and real estate transactions. 
+                  This digital solution aims to provide users with the convenience of searching for, viewing, and booking properties from the comfort of their own space. 
+                  With a user-friendly interface, FindMyNest allows clients to explore a wide range of properties, 
+                  from residences to offices, and even assists in property-related services like home shifting and home loans.
               </p>
             </div>
             <div class="w-footer-a">
               <ul class="list-unstyled">
                 <li class="color-a">
-                  <span class="color-text-a">Phone .</span> contact@example.com
+                  <span class="color-text-a">Phone .</span> +91 8113825461
                 </li>
                 <li class="color-a">
-                  <span class="color-text-a">Email .</span> +54 356 945234
+                  <span class="color-text-a">Email .</span> findmynest@gmail.com
                 </li>
               </ul>
             </div>
@@ -768,7 +785,7 @@
           <div class="copyright-footer">
             <p class="copyright color-text-a">
               &copy; Copyright
-              <span class="color-a">EstateAgency</span> All Rights Reserved.
+              <span class="color-a">FindMyNest</span> All Rights Reserved.
             </p>
           </div>
           <div class="credits">
@@ -778,7 +795,7 @@
             Licensing information: https://bootstrapmade.com/license/
             Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=EstateAgency
           -->
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> -->
           </div>
         </div>
       </div>

@@ -17,7 +17,10 @@ urlpatterns = [
     path('wishlist_view/',views.wishlist_view,name='wishlist_view'),
     path('viewcontact/<int:property_id>/', views.viewcontact, name='viewcontact'),
     path('renForm/',views.renForm,name='renForm'), 
-
-
-    
+    path('mortgage_calculator/', views.mortgage_calculator, name='mortgage_calculator'),
+    path('apply/', views.home_loan_application, name='home_loan_application'),
+    path('home-interiors/', views.home_interiors_form, name='home_interiors_form'),
+    path('add_to_compare/<int:property_id>/', views.add_to_compare, name='add_to_compare'),
+    path('compare/', views.compare_properties, name='compare_properties'),
+    path('remove_property/<int:property_id>/', views.remove_property, name='remove_property'),
 ]

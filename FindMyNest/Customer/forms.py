@@ -168,8 +168,12 @@ class PropertyForm(forms.ModelForm):
         }
         
         
-        
+from .models import MortgageCalculation
 
+class MortgageCalculatorForm(forms.ModelForm):
+    class Meta:
+        model = MortgageCalculation
+        fields = ['property_price', 'down_payment', 'interest_rate', 'loan_term_years']
 
             
             

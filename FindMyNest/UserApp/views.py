@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from .manager import UserManager
 from django.shortcuts import render, get_object_or_404
 from django.contrib  import messages,auth
-from .models import CustomUser,UserProfile,AgentProfile
+from .models import AgentView, CustomUser, ExecutiveProfile,UserProfile,AgentProfile
 from FindMyNestApp.models import Subscription
 from Customer.models import Property
 from FindMyNestApp.models import Payment
@@ -67,6 +67,10 @@ def login(request):
                     return redirect(reverse('admindashboard'))
                 elif request.user.user_type == CustomUser.CUSTOMER:
                     return redirect(reverse('index'))
+                elif request.user.user_type == CustomUser.AGENT:
+                    return redirect(reverse('agentdashboard'))
+                elif request.user.user_type == CustomUser.EXECUTIVE:
+                    return redirect(reverse('executivedashboard'))
                 else:
                     return redirect('/')
             else:
@@ -232,7 +236,7 @@ def editprofile(request):
         user_profile.save()
 
         # Check if the user type is Agent and save the username
-        if user.user_type == user.AGENT and user_profile.profile_editable:
+        if user.user_type in [user.AGENT, user.EXECUTIVE] and user_profile.profile_editable:
             new_username = request.POST.get('username')
             if new_username and not User.objects.filter(username=new_username).exists():
                 user.username = new_username
@@ -244,6 +248,7 @@ def editprofile(request):
                 return HttpResponseRedirect(reverse('editprofile') + f'?alert={error_message}')
 
         return redirect('editprofile')
+
 
     context = {
         'user': user,
@@ -458,3 +463,56 @@ def payment_info(request):
     }
 
     return render(request, 'Payment_info.html', context)
+
+
+from django.db.models import Count
+
+from django.db.models import Count
+
+@login_required
+def agentdashboard(request):
+    # Retrieve the agent's profile
+    agent_profile = AgentProfile.objects.get(user=request.user)
+
+    # Update view count for the agent's profile
+    AgentView.objects.create(agentProfile=agent_profile, user=request.user)
+
+    # Get the total number of views for the agent's profile
+    view_count = AgentView.objects.filter(agentProfile=agent_profile).count()
+
+    # Get the list of recent viewers (last 5 viewers excluding the logged-in user)
+    recent_viewers = AgentView.objects.filter(agentProfile=agent_profile).exclude(user=request.user).order_by('-timestamp')[:5]
+
+    # Get the user who has visited the agent's profile the most
+    most_viewed_user = AgentView.objects.filter(agentProfile=agent_profile).exclude(user=request.user).values('user__username').annotate(view_count=Count('user')).order_by('-view_count').first()
+
+    context = {
+        'agent_profile': agent_profile,
+        'view_count': view_count,
+        'recent_viewers': recent_viewers,
+        'most_viewed_user': most_viewed_user,
+    }
+
+    return render(request, 'Agent_DashBoard.html', context)
+
+
+@login_required
+def executivedashboard(request):
+    # Retrieve the agent's profile
+
+
+    return render(request, 'Executive_DashBoard.html')
+
+
+
+@login_required
+def agentProperty(request):
+    # Retrieve the agent's profile
+    user_properties = Property.objects.filter(user=request.user)
+
+    context = {
+       'user_properties':user_properties
+    }
+
+    return render(request, 'Agent_Posted_Property.html', context)
+

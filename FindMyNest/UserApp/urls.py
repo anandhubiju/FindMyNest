@@ -14,6 +14,8 @@ urlpatterns = [
     path('logout/',views.logout,name='logout'),
     path('editprofile/',views.editprofile,name='editprofile'),
     path('admindashboard/',views.admindashboard,name='admindashboard'),
+    path('agentdashboard/',views.agentdashboard,name='agentdashboard'),
+    path('executivedashboard/',views.executivedashboard,name='executivedashboard'),
     path('propertys/',views.propertys,name='propertys'),
     path('users/',views.users,name='users'),
     path('subscription/',views.subscription,name='subscription'),
@@ -22,7 +24,7 @@ urlpatterns = [
     path('view_all_users/',views.view_all_users,name='view_all_users'),
     path('payment_info/',views.payment_info,name='payment_info'),
 
-    
+    path('agentProperty/',views.agentProperty,name='agentProperty'),
 
     path('change_password/', views.change_password, name='change_password'),
     path('reset_password/',auth_views.PasswordResetView.as_view(),name="reset_password"),

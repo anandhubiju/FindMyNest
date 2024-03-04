@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from UserApp.models import CustomUser,UserProfile
 
@@ -314,6 +315,8 @@ class Property(models.Model):
     property_tips = models.TextField(default='')
     sale_duration_tips = models.TextField(default='')
     tax_status= models.CharField(max_length=40, choices=TAX_CHOICE, blank=True, null=True)
+    user_type = models.PositiveSmallIntegerField(choices=CustomUser.ROLE_CHOICE, default=CustomUser.CUSTOMER)
+
     
 
     def __str__(self):
@@ -342,7 +345,7 @@ class Feedback(models.Model):
     message = models.TextField()
     comment_date = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(CustomUser, related_name='liked_feedbacks', blank=True)
-    replies = models.ManyToManyField('self', related_name='replies', blank=True)
+    sentiment_score = models.FloatField(null = True, blank=True) 
 
     def __str__(self):
         return self.first_name
@@ -358,4 +361,60 @@ class Wishlist(models.Model):
     def __str__(self):
         return f'{self.user.username} - {self.property.address}'
 
+class MortgageCalculation(models.Model):
+    property_price = models.DecimalField(max_digits=10, decimal_places=2)
+    down_payment = models.DecimalField(max_digits=10, decimal_places=2)
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    loan_term_years = models.IntegerField()
+
+
+class LoanApplicant(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    monthly_income = models.DecimalField(max_digits=10, decimal_places=2)
+    loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    property_buying_city = models.CharField(max_length=100)
+    email = models.EmailField()
+    age = models.IntegerField()
+    gender_choices = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    ]
+    gender = models.CharField(max_length=10, choices=gender_choices)
+    employment_type_choices = [
+        ('Self Employed', 'Self Employed'),
+        ('Business', 'Business'),
+        ('Salaried', 'Salaried'),
+    ]
+    employment_type = models.CharField(max_length=100, choices=employment_type_choices)
+    ongoing_emi = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    credit_score = models.IntegerField(blank=True, null=True)
+
+class Nominee(models.Model):
+    applicant = models.ForeignKey(LoanApplicant, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    relationship = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    nominee_email = models.EmailField()
     
+
+class HomeInteriors(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    city = models.CharField(max_length=100)
+    vendor = models.CharField(max_length=100)
+    budget = models.CharField(max_length=20)
+    scope = models.CharField(max_length=100)
+    apartment_type = models.CharField(max_length=20)
+    possession_timeline = models.CharField(max_length=50)
+    comments = models.TextField()
+    agreement = models.BooleanField(default=False)
+    status = models.CharField(max_length=20,default='Applied')
+
+class CompareProperty(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    properties = models.ManyToManyField(Property)
+    created_at = models.DateTimeField(auto_now_add=True)

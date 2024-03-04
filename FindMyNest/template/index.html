@@ -12,7 +12,7 @@
 
   <!-- Favicons -->
   <link href="{% static 'assets\images\Icon.png' %}" rel="icon">
-  <link href="{% static 'assets\images\Icon.png' %}"" rel="apple-touch-icon">
+  <link href="{% static 'assets\images\Icon.png' %}"" rel=" apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
@@ -26,7 +26,8 @@
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   <link href="{% static '/style.css' %}" rel="stylesheet">
-
+  <script type="text/javascript"
+    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   <!-- =======================================================
   * Template Name: EstateAgency
   * Updated: Jul 27 2023 with Bootstrap v5.3.1
@@ -34,6 +35,96 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+  <style>
+    #google_translate_element .skiptranslate {
+      display: inline !important;
+
+    }
+
+    #google_translate_element .skiptranslate {
+      display: inline !important;
+
+    }
+
+
+    .goog-te-gadget {
+      color: transparent !important;
+    }
+
+    /* Dark Theme for the select dropdown */
+    .goog-te-combo {
+      padding: 8px;
+      /* Add padding for spacing */
+      font-size: 14px;
+      /* Set font size */
+      border: 1px solid #666;
+      /* Dark border */
+      border-radius: 4px;
+      /* Add rounded corners */
+      background-color: #000000;
+      /* Dark background color */
+      color: #fff;
+      /* Light text color */
+    }
+
+    /* Style the select dropdown when it's hovered */
+    .goog-te-combo:hover {
+      border-color: #2da721;
+      /* Darker border color on hover */
+    }
+
+    /* Style the select dropdown when it's focused (clicked) */
+    .goog-te-combo:focus {
+      outline: none;
+      /* Remove the default focus outline */
+      border-color: #007bff;
+      /* Change border color on focus */
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      /* Add a shadow on focus */
+    }
+
+    /* Style the dropdown arrow */
+    .goog-te-combo-arrow {
+      font-size: 12px;
+      /* Adjust arrow size */
+      color: #fff;
+      /* Light arrow color */
+    }
+
+    /* Style the dropdown options */
+    .goog-te-menu-value {
+      font-size: 14px;
+      /* Set font size for options */
+      color: #fff;
+      /* Light text color for options */
+      background-color: #68dd3a;
+      /* Dark background color for options */
+    }
+    .VIpgJd-ZVi9od-ORHb-OEVmcd{
+      display: none;
+    }
+    /* Style the dropdown options on hover */
+    .goog-te-menu-value:hover {
+      background-color: #007bff;
+      /* Change background color on hover */
+      color: #fff;
+      /* Light text color on hover */
+    }
+    .VIpgJd-ZVi9od-l4eHX-hSRGPd {
+      display: none !important;
+  }
+  #startButton{
+    z-index: 1;
+        position: fixed;
+        bottom: 60px;
+        right: 20px;
+        height: 45px;
+        width: 45px;
+        border-radius: 100%;
+        border: none;
+        background-color: #76b42f;
+}
+  </style>
 </head>
 
 <body>
@@ -45,12 +136,13 @@
   <!-- ======= Header/Navbar ======= -->
   <nav class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top">
     <div class="container">
-      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault"
+        aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span></span>
         <span></span>
         <span></span>
       </button>
-      
+
       <a class="navbar-brand text-brand" href="index.html">FindM<span class="color-b">yNest</span></a>
 
       <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
@@ -58,45 +150,68 @@
           <li class="nav-item">
             <a class="nav-link active" href="{% url 'index' %}">Home</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link " href="{% url 'about' %}">About</a>
-          </li>
 
+          </li>
           {% if user.is_superuser %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Property</a>
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'propertylist' %}">All Property</a>
             </div>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false"> Welcome, {{ user.username }}!</a>
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'logout' %}">Logout</a>
             </div>
           </li>
-          {%  elif  user.is_authenticated %}
+          {% elif user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle"  href="#" id="PropertyDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property</a>
+            <a class="nav-link dropdown-toggle" href="#" id="PropertyDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Property</a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" id ="All_property" href="{% url 'propertylist' %}">All Property</a>
-                {% for property_type in property_types %}
-                    <a class="dropdown-item"  href="{% url 'property_list_by_type' property_type=property_type %}">{{ property_type }}</a>
-                {% endfor %}
+              <a class="dropdown-item" id="All_property" href="{% url 'propertylist' %}">All Property</a>
+              {% for property_type in property_types %}
+              <a class="dropdown-item" href="{% url 'property_list_by_type' property_type=property_type %}">{{
+                property_type }}</a>
+              {% endfor %}
             </div>
-        </li>
-           <li class="nav-item">
-            <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
-          </li> 
+          </li>
+
           <li class="nav-item">
             <a class="nav-link " href="{% url 'agentlist' %}">Agent</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link " href="{% url 'renForm' %}">Rent Agreement</a>
-          </li>
+
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Welcome,  {{ user.username }}!</a>
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Home Loan</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'home_loan_application' %}">Apply Loan</a>
+              <a class="dropdown-item " id="profile" href="{% url 'mortgage_calculator' %}">Calculate Home Loan EMI</a>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="{% url 'renForm' %}"></a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Property Services</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'addproperty' %}">Post Property</a>
+              <a class="dropdown-item " href="{% url 'renForm' %}">Rent Agreement</a>
+              <a class="dropdown-item " href="{% url 'home_interiors_form' %}">Home Interiors</a>
+              <a class="dropdown-item " href="{% url 'compare_properties' %}">compare properties</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false"> Welcome, {{ user.username }}!</a>
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'logout' %}">Logout</a>
               <a class="dropdown-item " id="profile" href="{% url 'editprofile' %}">Profile</a>
@@ -111,12 +226,14 @@
             <a class="nav-link " href="/register">Register</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link " id=" "href="{% url 'login' %}">Login</a>
+            <a class="nav-link " id=" " href="{% url 'login' %}">Login</a>
           </li>
           {% endif %}
         </ul>
 
       </div>
+      <div ><span style="display: none;">Select Language: </span>
+        <div id="google_translate_element"></div></div>
     </div>
   </nav><!-- End Header/Navbar -->
 
@@ -125,7 +242,8 @@
 
     <div class="swiper-wrapper">
 
-      <div class="swiper-slide carousel-item-a intro-item bg-image" style="background-image: url({% static 'assets/img/login2.jpg' %})">
+      <div class="swiper-slide carousel-item-a intro-item bg-image"
+        style="background-image: url({% static 'assets/img/login2.jpg' %})">
         <div class="overlay overlay-a"></div>
         <div class="intro-content display-table">
           <div class="table-cell">
@@ -137,7 +255,7 @@
                       <br> 78345
                     </p>
                     <h1 class="intro-title mb-4 ">
-                      <span class="color-b">Real Estate is our life</span> 
+                      <span class="color-b">Real Estate is our life</span>
                       <br>Everyone deserves the right home
                     </h1>
 
@@ -148,7 +266,8 @@
           </div>
         </div>
       </div>
-      <div class="swiper-slide carousel-item-a intro-item bg-image" style="background-image: url({% static 'assets/img/banner4.jpg' %})">
+      <div class="swiper-slide carousel-item-a intro-item bg-image"
+        style="background-image: url({% static 'assets/img/banner4.jpg' %})">
         <div class="overlay overlay-a"></div>
         <div class="intro-content display-table">
           <div class="table-cell">
@@ -162,7 +281,7 @@
                       <span class="color-b">Your edge in Real Estate.</span>
                       <br> The power tools to sell your home
                     </h1>
-                    
+
                   </div>
                 </div>
               </div>
@@ -170,7 +289,8 @@
           </div>
         </div>
       </div>
-      <div class="swiper-slide carousel-item-a intro-item bg-image" style="background-image: url({% static 'assets/img/banner5.jpg' %})">
+      <div class="swiper-slide carousel-item-a intro-item bg-image"
+        style="background-image: url({% static 'assets/img/banner5.jpg' %})">
         <div class="overlay overlay-a"></div>
         <div class="intro-content display-table">
           <div class="table-cell">
@@ -182,10 +302,10 @@
                       <br> 78345
                     </p>
                     <h1 class="intro-title mb-4">
-                      <span class="color-b">Real Estate is our life</span> 
+                      <span class="color-b">Real Estate is our life</span>
                       <br>The creativity of the new world.
                     </h1>
-                    
+
                   </div>
                 </div>
               </div>
@@ -224,7 +344,11 @@
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  FindMyNest allows users to search for properties online, making it convenient to find their ideal homes or investment properties from the comfort of their own homes. Users can browse property listings, view details such as location, value, and ownership, and make bookings with just a few clicks. This service streamlines the property search process, making it easier for individuals to find and secure their preferred properties.
+                  FindMyNest allows users to search for properties online, making it convenient to find their ideal
+                  homes or investment properties from the comfort of their own homes. Users can browse property
+                  listings, view details such as location, value, and ownership, and make bookings with just a few
+                  clicks. This service streamlines the property search process, making it easier for individuals to find
+                  and secure their preferred properties.
                 </p>
               </div>
             </div>
@@ -241,7 +365,10 @@
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  FindMyNest can provide users with access to information about different types of loans available in the market, such as home loans, mortgage loans, or construction loans. Users can compare interest rates, loan terms, and eligibility criteria from various lenders. This helps individuals make informed decisions when considering financing options for property purchases.
+                  FindMyNest can provide users with access to information about different types of loans available in
+                  the market, such as home loans, mortgage loans, or construction loans. Users can compare interest
+                  rates, loan terms, and eligibility criteria from various lenders. This helps individuals make informed
+                  decisions when considering financing options for property purchases.
                 </p>
               </div>
             </div>
@@ -258,7 +385,11 @@
               </div>
               <div class="card-body-c">
                 <p class="content-c">
-                  The platform facilitates connections between property owners, clients, and real estate agents. Users can access property owner contact details after paying a small commission, enabling direct communication for inquiries or negotiations. Additionally, FindMyNest offers agent profiles and contact information, making it easier for clients to choose the right agent to assist them in buying or selling properties. This service enhances transparency and efficiency in property transactions.
+                  The platform facilitates connections between property owners, clients, and real estate agents. Users
+                  can access property owner contact details after paying a small commission, enabling direct
+                  communication for inquiries or negotiations. Additionally, FindMyNest offers agent profiles and
+                  contact information, making it easier for clients to choose the right agent to assist them in buying
+                  or selling properties. This service enhances transparency and efficiency in property transactions.
                 </p>
               </div>
             </div>
@@ -290,7 +421,8 @@
             <div class="carousel-item-b swiper-slide">
               <div class="card-box-a card-shadow">
                 <div class="img-box-a">
-                  <img src="{{ property.thumbnail.url }}" alt="" class="img-a img-fluid" style="width: 500px; height: 500px;">
+                  <img src="{{ property.thumbnail.url }}" alt="" class="img-a img-fluid"
+                    style="width: 500px; height: 500px;">
                 </div>
                 <div class="card-overlay">
                   <div class="card-overlay-a-content">
@@ -304,7 +436,8 @@
                       <div class="price-box d-flex">
                         <span class="price-a">{{ property.status }} | RS {{ property.price }}</span>
                       </div>
-                      <a href="{% url 'property_single' property.id %}?property_id={{ property.id }}" class="link-a">Click here to view
+                      <a href="{% url 'property_single' property.id %}?property_id={{ property.id }}"
+                        class="link-a">Click here to view
                         <span class="bi bi-chevron-right"></span>
                       </a>
                     </div>
@@ -338,7 +471,7 @@
         </div>
 
 
-        
+
         <div class="propery-carousel-pagination carousel-pagination"></div>
 
       </div>
@@ -346,10 +479,11 @@
 
     <!-- ======= Agents Section ======= -->
     <section class="section-agents section-t8">
-      <div class="intro intro-carousel swiper position-relative"style="height: 450px;">
+      <div class="intro intro-carousel swiper position-relative" style="height: 450px;">
 
         <div class="swiper-wrapper">
-          <div class="swiper-slide carousel-item-a intro-item bg-image" style="background-image: url({% static 'assets/img/login2.jpg' %}); height: 450px;">
+          <div class="swiper-slide carousel-item-a intro-item bg-image"
+            style="background-image: url({% static 'assets/img/login2.jpg' %}); height: 450px;">
             <div class="overlay overlay-a"></div>
             <div class="intro-content display-table">
               <div class="table-cell">
@@ -361,10 +495,10 @@
                           <br>Your navigator in realestate excellences
                         </p>
                         <h1 class="intro-title mb-4 ">
-                          <span class="color-b">Post Property</span> 
+                          <span class="color-b">Post Property</span>
                           <br>
                         </h1>
-    
+
                       </div>
                     </div>
                   </div>
@@ -372,81 +506,81 @@
               </div>
             </div>
           </div>
-      </div>
+        </div>
       </div>
     </section><!-- End Agents Section -->
+    <button id="startButton"><i class="bi bi-mic-fill text-white"></i></button>
 
 
-
-    <div id="generic_price_table"> 
+    <div id="generic_price_table">
       {% if user.is_authenticated and not user.payment_set.all %}
 
       <section>
-          <div class="container">
-              <div class="row">
-                  <div class="col-md-12">
-                      <!--PRICE HEADING START-->
-                      <div class="price-heading clearfix">
-                          <h1>OUR PLANS</h1>
-                      </div>
-                      <!--//PRICE HEADING END-->
-                  </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <!--PRICE HEADING START-->
+              <div class="price-heading clearfix">
+                <h1>OUR PLANS</h1>
               </div>
+              <!--//PRICE HEADING END-->
+            </div>
           </div>
-          <div class="container">
-              <!--BLOCK ROW START-->
-              <div class="row">
-                  {% for i in subscriptions %}
-                  <div class="col-md-4">
-                      <!--PRICE CONTENT START-->
-                      <div class="generic_content clearfix">
-                          <!--HEAD PRICE DETAIL START-->
-                          <div class="generic_head_price clearfix">
-                              <!--HEAD CONTENT START-->
-                              <div class="generic_head_content clearfix">
-                                  <!--HEAD START-->
-                                  <div class="head_bg"></div>
-                                  <div class="head">
-                                      <span>{{ i.sub_type }}</span>
-                                  </div>
-                                  <!--//HEAD END-->
-                              </div>
-                              <!--//HEAD CONTENT END-->
-                              <!--PRICE START-->
-                              <div class="generic_price_tag clearfix">  
-                                  <span class="price">
-                                      <span class="sign">Rs</span>
-                                      <span class="currency">{{ i.price }}</span>
-                                      <span class="month">/{{ i.validity }}</span>
-                                  </span>
-                              </div>
-                              <!--//PRICE END-->
-                          </div>                            
-                          <!--//HEAD PRICE DETAIL END-->
-                          <!--FEATURE LIST START-->
-                          <div class="generic_feature_list">
-                              <ul> 
-                                  {% for feature in features %}
-                                  <li><span>{{ feature }}</span></li>
-                                  {% endfor %}
-                              </ul>
-                          </div>
-                          <!--//FEATURE LIST END-->
-                          <!--BUTTON START-->
-                          <div class="generic_price_btn clearfix">
-                              <a href="{% url 'payment' sub_id=i.id %}"><button class="btn pay-btn">Buy</button></a>
-                          </div>
-                          <!--//BUTTON END-->
-                      </div>
-                      <!--//PRICE CONTENT END-->
+        </div>
+        <div class="container">
+          <!--BLOCK ROW START-->
+          <div class="row">
+            {% for i in subscriptions %}
+            <div class="col-md-4">
+              <!--PRICE CONTENT START-->
+              <div class="generic_content clearfix">
+                <!--HEAD PRICE DETAIL START-->
+                <div class="generic_head_price clearfix">
+                  <!--HEAD CONTENT START-->
+                  <div class="generic_head_content clearfix">
+                    <!--HEAD START-->
+                    <div class="head_bg"></div>
+                    <div class="head">
+                      <span>{{ i.sub_type }}</span>
+                    </div>
+                    <!--//HEAD END-->
                   </div>
-                  {% endfor %}  
-              </div>  
-              <!--//BLOCK ROW END-->
+                  <!--//HEAD CONTENT END-->
+                  <!--PRICE START-->
+                  <div class="generic_price_tag clearfix">
+                    <span class="price">
+                      <span class="sign">Rs</span>
+                      <span class="currency">{{ i.price }}</span>
+                      <span class="month">/{{ i.validity }}</span>
+                    </span>
+                  </div>
+                  <!--//PRICE END-->
+                </div>
+                <!--//HEAD PRICE DETAIL END-->
+                <!--FEATURE LIST START-->
+                <div class="generic_feature_list">
+                  <ul>
+                    {% for feature in features %}
+                    <li><span>{{ feature }}</span></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <!--//FEATURE LIST END-->
+                <!--BUTTON START-->
+                <div class="generic_price_btn clearfix">
+                  <a href="{% url 'payment' sub_id=i.id %}"><button class="btn pay-btn">Buy</button></a>
+                </div>
+                <!--//BUTTON END-->
+              </div>
+              <!--//PRICE CONTENT END-->
+            </div>
+            {% endfor %}
           </div>
+          <!--//BLOCK ROW END-->
+        </div>
       </section>
-      {% endif %}             
-      </div>
+      {% endif %}
+    </div>
 
 
 
@@ -604,7 +738,9 @@
                     </div>
                     <div class="testimonials-content">
                       <p class="testimonial-text">
-                        Meet Albert & Erika, a prospective homebuyer who is on the hunt for a new house. He decides to use FindMyNest to simplify his property search and purchase process. Here's how his experience unfolds:
+                        Meet Albert & Erika, a prospective homebuyer who is on the hunt for a new house. He decides to
+                        use FindMyNest to simplify his property search and purchase process. Here's how his experience
+                        unfolds:
                       </p>
                     </div>
                     <div class="testimonial-author-box">
@@ -630,7 +766,9 @@
                     </div>
                     <div class="testimonials-content">
                       <p class="testimonial-text">
-                        Meet Pablo & Emma, a prospective homebuyer who is on the hunt for a new house. He decides to use FindMyNest to simplify his property search and purchase process. Here's how his experience unfolds:
+                        Meet Pablo & Emma, a prospective homebuyer who is on the hunt for a new house. He decides to use
+                        FindMyNest to simplify his property search and purchase process. Here's how his experience
+                        unfolds:
                       </p>
                     </div>
                     <div class="testimonial-author-box">
@@ -662,10 +800,13 @@
             </div>
             <div class="w-body-a">
               <p class="w-text-a color-text-a">
-                FindMyNest is an innovative online platform designed to simplify the process of property management and real estate transactions. 
-                  This digital solution aims to provide users with the convenience of searching for, viewing, and booking properties from the comfort of their own space. 
-                  With a user-friendly interface, FindMyNest allows clients to explore a wide range of properties, 
-                  from residences to offices, and even assists in property-related services like home shifting and home loans.
+                FindMyNest is an innovative online platform designed to simplify the process of property management and
+                real estate transactions.
+                This digital solution aims to provide users with the convenience of searching for, viewing, and booking
+                properties from the comfort of their own space.
+                With a user-friendly interface, FindMyNest allows clients to explore a wide range of properties,
+                from residences to offices, and even assists in property-related services like home shifting and home
+                loans.
               </p>
             </div>
             <div class="w-footer-a">
@@ -811,7 +952,8 @@
   </footer><!-- End  Footer -->
 
   <div id="preloader"></div>
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -823,8 +965,51 @@
 
 
 
+  <script>
+    const startButton = document.getElementById('startButton');
 
-<!-- <script>
+    const recognition = new webkitSpeechRecognition(); // Create a new instance of SpeechRecognition
+
+    recognition.lang = 'en-US'; // Set recognition language
+
+    
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        console.log('Recognition result:', transcript);
+        console.log(isRecognizing);
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Recognition error:', event.error);
+        console.log(isRecognizing);
+
+    };
+
+
+        let isRecognizing = false;
+
+recognition.onstart = () => {
+startButton.innerHTML = '<i class="bi bi-mic-mute-fill text-white"></i>';
+
+  isRecognizing = true;
+  console.log(isRecognizing);
+};
+
+recognition.onend = () => {
+  isRecognizing = false;
+  console.log(isRecognizing);
+};
+
+startButton.addEventListener('click', () => {
+  if (isRecognizing) {
+    recognition.stop();
+  } else {
+    recognition.start();
+  }
+    });
+</script>
+  <!-- <script>
   var options = {
      
     // Enter the Key ID generated from the Dashboard
@@ -861,25 +1046,25 @@ for (var i = 0; i < elements.length; i++) {
 
 </script> -->
 
-<script type="text/javascript">
-  (function(d, m){
-      var kommunicateSettings = 
-          {"appId":"29a4684195ddd415eb9355eb68c1d4d4e","popupWidget":true,"automaticChatOpenOnNavigation":true};
+  <script type="text/javascript">
+    (function (d, m) {
+      var kommunicateSettings =
+        { "appId": "29a4684195ddd415eb9355eb68c1d4d4e", "popupWidget": true, "automaticChatOpenOnNavigation": true };
       var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
       s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
       var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
       window.kommunicate = m; m._globals = kommunicateSettings;
-      
+
       // Auto-start a new conversation when the page is refreshed
       if (localStorage.getItem('conversationRefreshed') !== 'true') {
         m.kommunicate.startConversation();
         localStorage.setItem('conversationRefreshed', 'true');
       }
-  })(document, window.kommunicate || {});
-</script>
+    })(document, window.kommunicate || {});
+  </script>
 
-<script>
-  function redirectToWhatsApp() {
+  <script>
+    function redirectToWhatsApp() {
       // Replace '1234567890' with the desired WhatsApp number
       var phoneNumber = '9544386239';
 
@@ -888,8 +1073,14 @@ for (var i = 0; i < elements.length; i++) {
 
       // Open the WhatsApp link in a new tab or window
       window.open(whatsappLink, '_blank');
-  }
-</script>
+    }
+  </script>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
+    }
+  </script>
+
 </body>
 
 </html>

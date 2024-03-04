@@ -1,8 +1,10 @@
+from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from requests import Request
 from django.http import JsonResponse
-from .models import Property,Image,PropertyView,Feedback,Wishlist
+from .models import CompareProperty, Property,Image,PropertyView,Feedback,Wishlist
 from .forms import PropertyForm
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -44,6 +46,7 @@ def addproperty(request):
         if form.is_valid():
             property_instance = form.save(commit=False)
             property_instance.user = request.user
+            property_instance.user_type = request.user.user_type
 
             selected_features = form.cleaned_data['features']
             features_str = ', '.join(selected_features)
@@ -171,7 +174,9 @@ def analyze_property_details(property_details):
 
 
 
-
+import nltk
+nltk.download('vader_lexicon') 
+from nltk.sentiment import SentimentIntensityAnalyzer
 def submit_comment(request):
     if request.method == 'POST':
         # Check if the user is logged in and has a user profile
@@ -184,6 +189,8 @@ def submit_comment(request):
         email = request.POST['email']
         message = request.POST['message']
         property_id = request.POST['property_id']
+        sentiment_analyzer = SentimentIntensityAnalyzer()        
+        sentiment_score = sentiment_analyzer.polarity_scores(message)['compound']  
 
         # Create a new Feedback instance and save it to the database
         feedback = Feedback(
@@ -192,6 +199,7 @@ def submit_comment(request):
             first_name=first_name,
             email=email,
             message=message,
+            sentiment_score=sentiment_score,
         )
         feedback.save()
 
@@ -202,6 +210,9 @@ def submit_comment(request):
         return redirect('property_single', property_id=property_id)
 
     return render(request, 'property-single.html')
+
+
+
     
 def add_wishlist(request, property_id):
     # Get the Property object based on the property_id
@@ -432,10 +443,8 @@ def edit_property(request, property_id):
 
 
 
+@login_required
 def propertysingle(request, property_id):
-    # Retrieve tips from URL parameters
-
-
     user = request.user
     property = get_object_or_404(Property, id=property_id)
     feedbacks = Feedback.objects.filter(property=property).order_by('-comment_date')
@@ -446,8 +455,7 @@ def propertysingle(request, property_id):
         property.save()
 
         # Record the user's view
-        if request.user.is_authenticated:
-            PropertyView.objects.get_or_create(property=property, user=request.user)
+        PropertyView.objects.get_or_create(property=property, user=request.user)
 
     images = Image.objects.filter(property=property)
     excluded_property_types = ['Commercial', 'Office', 'Garage']
@@ -455,6 +463,10 @@ def propertysingle(request, property_id):
     nearby_place = property.nearby_place.split(', ') if property.nearby_place else []
     property_tips = property.property_tips.split(', ') if property.property_tips else []
     sale_duration_tips = property.sale_duration_tips.split(', ') if property.sale_duration_tips else []
+
+    # Retrieve properties added to compare by the current user
+    compare_properties = CompareProperty.objects.filter(user=user).first()
+    compare_property_list = compare_properties.properties.all() if compare_properties else []
 
     context = {
         'property': property,
@@ -466,7 +478,13 @@ def propertysingle(request, property_id):
         'feedbacks': feedbacks,
         'sale_duration_tips': sale_duration_tips,
         'property_tips': property_tips,
+        'compare_properties': compare_property_list,  # Pass the compare properties to the context
     }
+
+    # Check if the user has added 4 properties to compare
+    if len(compare_property_list) >= 4 and property not in compare_property_list:
+        messages.error(request, "You cannot add more properties to compare. Remove a property from compare to add another.")
+        context['disable_compare_button'] = True
 
     return render(request, 'property-single.html', context)
     
@@ -640,7 +658,176 @@ def renForm(request):
 
 
 
+from django.shortcuts import render
+from .forms import MortgageCalculatorForm
+
+def mortgage_calculator(request):
+    if request.method == 'POST':
+        property_price = float(request.POST.get('property_price'))
+        down_payment = float(request.POST.get('down_payment'))
+        interest_rate = float(request.POST.get('interest_rate')) / 100
+        loan_term_years = int(request.POST.get('loan_term_years'))
+        
+        principal = property_price - down_payment
+        monthly_interest_rate = interest_rate / 12
+        num_payments = loan_term_years * 12
+        monthly_payment = (principal * monthly_interest_rate) / (1 - (1 + monthly_interest_rate) ** -num_payments)
+        
+        return render(request, 'mortgage_calculator.html', {'monthly_payment': monthly_payment})
+    else:
+        return render(request, 'mortgage_calculator.html')
+
+
+from .models import LoanApplicant, Nominee
+
+def home_loan_application(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        monthly_income = request.POST.get('monthly_income')
+        loan_amount = request.POST.get('loan_amount')
+        property_buying_city = request.POST.get('property_buying_city')
+        email = request.POST.get('email')
+        age = request.POST.get('age')
+        gender = request.POST.get('gender')
+        employment_type = request.POST.get('employment_type')
+        ongoing_emi = request.POST.get('ongoing_emi')
+        
+        applicant = LoanApplicant.objects.create(
+            user=request.user,
+            name=name,
+            monthly_income=monthly_income,
+            loan_amount=loan_amount,
+            property_buying_city=property_buying_city,
+            email=email,
+            age=age,
+            gender=gender,
+            employment_type=employment_type,
+            ongoing_emi=ongoing_emi
+        )
+        
+        # If credit score is provided
+        if request.POST.get('credit_score_option') == 'Yes':
+            credit_score = request.POST.get('credit_score')
+            applicant.credit_score = credit_score
+            applicant.save()
+        
+        # If nominee details are provided
+        if request.POST.get('has_nominee'):
+            nominee_name = request.POST.get('nominee_name')
+            relationship = request.POST.get('relationship')
+            phone_number = request.POST.get('phone_number')
+            nominee_email = request.POST.get('nominee_email')
+            
+            nominee = Nominee.objects.create(
+                applicant=applicant,
+                name=nominee_name,
+                relationship=relationship,
+                phone_number=phone_number,
+                nominee_email=nominee_email
+            )
+        
+        send_email(name, email)  # Corrected this line
+        return render(request, 'application_success.html')
+    return render(request, 'home_loan_application.html')
+
+
+def send_email(name, email):
+    subject = 'Thank you for sharing your details! - FindMyNest'
+    message = f"Congratulations, {name}! Your application is on its way.\n\n"
+    message += "You've successfully completed your home loan application.\n\n"
+    message += "We'll contact you shortly to discuss your best offers and guide you through the next steps.\n\n"
+    
+    from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
+    recipient_list = [email]
+    
+    send_mail(subject, message, from_email, recipient_list)
+    
+
+from .models import HomeInteriors
+
+def home_interiors_form(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+        city = request.POST.get('city')
+        vendor = request.POST.get('vendor')
+        budget = request.POST.get('budget')
+        scope = request.POST.get('scope')
+        apartment_type = request.POST.get('apartment_type')
+        possession_timeline = request.POST.get('possession_timeline')
+        comments = request.POST.get('comments')
+        agreement = request.POST.get('agreement') == 'on'
+        
+        
+
+        # Create a new HomeInteriors object
+        home_interiors = HomeInteriors.objects.create(
+            user=request.user,
+            name=name,
+            phone=phone,
+            email=email,
+            city=city,
+            vendor=vendor,
+            budget=budget,
+            scope=scope,
+            apartment_type=apartment_type,
+            possession_timeline=possession_timeline,
+            comments=comments,
+            agreement=agreement
+        )
+
+        # Save the object to the database
+        home_interiors.save()
+
+        return render(request, 'application_success.html')  # Render to a success page after form submission
+    else:
+        return render(request, 'home_ Interiors.html')  # Render the form template for GET requests
+    
 
 
 
 
+def add_to_compare(request, property_id):
+    # Retrieve the property object
+    property_obj = get_object_or_404(Property, pk=property_id)
+
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # Get or create CompareProperty object for the user
+        compare_property, created = CompareProperty.objects.get_or_create(user=request.user)
+
+        # Check if the property is already in the compare list
+        if property_obj in compare_property.properties.all():
+            messages.error(request, "This property is already in your compare list.")
+        elif compare_property.properties.count() >= 4:
+            messages.error(request, "You can only compare up to 4 properties.")
+        else:
+            # Add the property to the compare list
+            compare_property.properties.add(property_obj)
+            messages.success(request, "Property added to compare list successfully.")
+    else:
+        messages.error(request, "You need to be logged in to add properties to compare list.")
+
+    return redirect('property_single', property_id=property_id)
+
+def compare_properties(request):
+    # Get the CompareProperty objects for the logged-in user
+    compare_properties = CompareProperty.objects.filter(user=request.user)
+
+    context = {'compare_properties': compare_properties}
+
+    return render(request, 'compare_properties.html', context)
+
+
+def remove_property(request, property_id):
+    try:
+        user = request.user
+        compare_property = CompareProperty.objects.get(user=user)
+        property_to_remove = compare_property.properties.get(id=property_id)
+        compare_property.properties.remove(property_to_remove)
+        return redirect(reverse('compare_properties'))  # Redirect to another view after removal
+    except CompareProperty.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'CompareProperty not found'})
+    except Property.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Property not found'})

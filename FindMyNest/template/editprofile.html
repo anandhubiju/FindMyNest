@@ -416,15 +416,16 @@
                                             <div class="row">
                                               <div class="form-group col-md-6 pd-20" id="successMessage">
                                                 <label class="mt-2 mb-1">UserName</label>
-                                                {% if user.user_type == user.AGENT %}
-                                                    {% if user_profile.profile_editable %}
-                                                        <input type="text" name="username" class="form-control" value="{{ user.username }}">
-                                                    {% else %}
-                                                        <input type="text" name="username" class="form-control" value="{{ user.username }}" disabled>
-                                                    {% endif %}
+                                                {% if user.user_type == user.AGENT or user.user_type == user.EXECUTIVE %}
+                                                {% if user_profile.profile_editable %}
+                                                    <input type="text" name="username" class="form-control" value="{{ user.username }}">
                                                 {% else %}
                                                     <input type="text" name="username" class="form-control" value="{{ user.username }}" disabled>
                                                 {% endif %}
+                                            {% else %}
+                                                <input type="text" name="username" class="form-control" value="{{ user.username }}" disabled>
+                                            {% endif %}
+                                            
                                              </div>
                                                 <div class="form-group col-md-6 pd-20">
                                                     <label class="mt-2 mb-1">Email</label>

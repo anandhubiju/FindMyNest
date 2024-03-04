@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from UserApp.models import CustomUser, UserProfile ,AgentProfile,AgentView
-from Customer.models import Property
+from UserApp.models import CustomUser, ExecutiveProfile, UserProfile ,AgentProfile,AgentView
+from Customer.models import HomeInteriors, LoanApplicant, Property
 from .models import Subscription,Payment
 from django.urls import reverse
 from django.views import View
@@ -34,6 +34,10 @@ def index(request):
     if request.user.is_authenticated:
         if request.user.user_type == CustomUser.ADMIN:
             return redirect(reverse('admindashboard'))
+        elif request.user.user_type == CustomUser.AGENT:
+            return redirect(reverse('agentdashboard'))
+        elif request.user.user_type == CustomUser.EXECUTIVE:
+            return redirect(reverse('executivedashboard'))
         elif not request.user.phone_no:
             return render(request, 'profile_completion.html', {'user': request.user})
 
@@ -189,26 +193,6 @@ def generate_password(name):
     password = name.lower() + '123'
     return password
 
-def send_welcome_emaila(username,first_name,last_name,email,password):
-    subject = 'Welcome to FindMyNest'
-    message = f"Hello {first_name},\n\n"
-    message += f"Welcome to FindMyNest, your platform for finding your dream property. We are excited to have you join us!\n\n"
-    
-    # Retrieve the associated subscription object # Assuming sub_type is a ManyToMany field
-
-    message += f"You have subscribed to the {username} plan, which is valid for {password}.\n\n"
-    
-    message += "Please feel free to contact the property owner for more information or to schedule a viewing of the property.\n\n"
-    message += "Thank you for choosing FindMyNest. We wish you the best in your property search!\n\n"
-    message += "Warm regards,\nThe FindMyNest Team\n\n"
-    
-    from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
-    recipient_list = [email]
-
-    # Create a PDF invoice and attach it to the email
-
-    # Send the email
-    email.send()
 
 def add_agent(request):
     if request.method == 'POST':
@@ -242,7 +226,7 @@ def add_agent(request):
                 agent_profile.save()
 
                 # Send welcome email
-                send_welcome_emaila(user.username,user.first_name,user.last_name,user.email,password)
+                send_email(user.username,user.first_name,user.last_name,user.email,password)
 
                 response = HttpResponseRedirect(reverse('add_agent') + '?alert=registered')
                 response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -252,23 +236,21 @@ def add_agent(request):
 
     return render(request, 'add_agent.html')
 
-def send_welcome_emaila(username,first_name,last_name,email,password):
+def send_email(username, first_name, last_name, email, password):
     subject = 'Welcome to FindMyNest'
     message = f"Hello {first_name},\n\n"
-    message += f"Welcome to FindMyNest, your platform for finding your dream property. We are excited to have you join us!\n\n"
+    message += f"Welcome to FindMyNest, your platform for real estate agents. We are excited to have you join us!\n\n"
     
-    # Retrieve the associated subscription object # Assuming sub_type is a ManyToMany field
-
-    message += f"You have subscribed to the {username} plan, which is valid for {password}.\n\n"
+    # Retrieve the associated subscription object
+    message += f"You have successfully registered as a real estate agent with username {username}.\n\n"
+    message += f"Your temporary password is: {password}\n\n"
     
-    message += "Please feel free to contact the property owner for more information or to schedule a viewing of the property.\n\n"
-    message += "Thank you for choosing FindMyNest. We wish you the best in your property search!\n\n"
+    message += "Please login to your account using this temporary password and update your password as soon as possible.\n\n"
+    message += "Thank you for choosing FindMyNest. We look forward to your success as a real estate agent!\n\n"
     message += "Warm regards,\nThe FindMyNest Team\n\n"
     
     from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
     recipient_list = [email]
-
-    # Create a PDF invoice and attach it to the email
 
     # Send the email
     send_mail(subject, message, from_email, recipient_list)
@@ -464,3 +446,89 @@ def agentsingle(request, agentProfile_id):
     }
 
     return render(request, 'agent-single.html', context)
+
+def add_executive(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', None)
+        last_name = request.POST.get('last_name', None)
+        email = request.POST.get('email', None)
+        phone = request.POST.get('phone', None)
+        password = generate_password(first_name)
+        username = generate_username(first_name, last_name)
+
+        if username and first_name and last_name and email and phone and password:
+
+            if User.objects.filter(username=username).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=username_is_already_registered')
+
+            elif User.objects.filter(email=email).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=email_is_already_registered')
+
+            elif User.objects.filter(phone_no=phone).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=phone_no_is_already_registered')
+
+            else:
+                user = User(username=username, first_name=first_name, last_name=last_name, email=email, phone_no=phone)
+                user.set_password(password)
+                user.user_type = CustomUser.EXECUTIVE
+                user.save()
+
+                user_profile = UserProfile(user=user)
+                user_profile.save()
+                
+                executive_profile = ExecutiveProfile(user=user)
+                executive_profile.save()
+
+
+                # Send welcome email
+                send_emailE(user.username,user.first_name,user.last_name,user.email,password)
+
+                response = HttpResponseRedirect(reverse('add_agent') + '?alert=registered')
+                response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+                response['Pragma'] = 'no-cache'
+                response['Expires'] = '0'
+                return response
+
+    return render(request, 'add_executive.html')
+
+def send_emailE(username, first_name, last_name, email, password):
+    subject = 'Welcome to FindMyNest'
+    message = f"Hello {first_name},\n\n"
+    message += f"Welcome to FindMyNest, your platform for real estate agents. We are excited to have you join us!\n\n"
+    
+    # Retrieve the associated subscription object
+    message += f"You have successfully registered as a real estate agent with username {username}.\n\n"
+    message += f"Your temporary password is: {password}\n\n"
+    
+    message += "Please login to your account using this temporary password and update your password as soon as possible.\n\n"
+    message += "Thank you for choosing FindMyNest. We look forward to your success as a real estate agent!\n\n"
+    message += "Warm regards,\nThe FindMyNest Team\n\n"
+    
+    from_email = 'findmynest.info@gmail.com'  # Replace with your actual email
+    recipient_list = [email]
+
+    # Send the email
+    send_mail(subject, message, from_email, recipient_list)
+    
+    
+@login_required
+def home_interiors_details(request):
+    # Retrieve all HomeInteriors and LoanApplicant objects
+    home_interiors = HomeInteriors.objects.all()
+
+    context = {
+        'home_interiors': home_interiors,
+    }
+
+    return render(request, 'Home_interiors_details.html', context)
+
+@login_required
+def home_Loan_details(request):
+    # Retrieve all LoanApplicant objects
+    loan_applicants = LoanApplicant.objects.all()
+
+    context = {
+        'loan_applicants': loan_applicants,
+    }
+
+    return render(request, 'Home_loan_details.html', context)
