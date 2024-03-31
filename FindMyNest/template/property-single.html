@@ -349,6 +349,19 @@
           <li class="nav-item">
             <a class="nav-link " href="{% url 'addproperty' %}">Post Property</a>
           </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="serviceDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Property Services</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="{% url 'addproperty' %}">Post Property</a>
+              <a class="dropdown-item " href="{% url 'renForm' %}">Rent Agreement</a>
+              <a class="dropdown-item " href="{% url 'home_interiors_form' %}">Home Interiors</a>
+              <a class="dropdown-item " id="compare" href="{% url 'compare_properties' %}">compare properties</a>
+            </div>
+          </li>
+
+          
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false"> Welcome, {{ user.username }}!</a>
@@ -524,6 +537,7 @@
                       {% endif %}
                     </ul>
                   </div>
+                  
                   <div class="row">
                     <div class="col-sm-12">
                       <div class="title-box-d section-t4">
@@ -563,25 +577,6 @@
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-12">
-                  {% if property.user == request.user %}
-                  <!-- If the property is added by the logged-in user -->
-                  <span class="btn btn-info disabled">Added by You</span>
-                  {% elif property in compare_properties %}
-                  <!-- If the property is already in the compare list -->
-                  <a href="{% url 'compare_properties' %}" class="btn btn-secondary">Go to Compare</a>
-                  {% elif disable_compare_button %}
-                  <!-- If the user cannot add more properties to compare -->
-                  <span class="btn btn-danger disabled">Cannot add more properties to compare <a
-                      href="{% url 'compare_properties' %}" class="btn btn-warning">Go to Compare</a></span>
-
-                  {% else %}
-                  <!-- If the property is not added by the logged-in user and not in the compare list -->
-                  <a href="{% url 'add_to_compare' property.id %}" class="btn btn-success">Add to Compare</a>
-                  {% endif %}
                 </div>
               </div>
               <div class="col-md-7 col-lg-7 section-md-t3">
@@ -629,6 +624,26 @@
             </div>
           </div>
         </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  {% if property.user == request.user %}
+                  <!-- If the property is added by the logged-in user -->
+                  <span class="btn btn-info disabled">Added by You</span>
+                  {% elif property in compare_properties %}
+                  <!-- If the property is already in the compare list -->
+                  <a href="{% url 'compare_properties' %}" id="go_compare" class="btn btn-secondary">Go to Compare</a>
+                  {% elif disable_compare_button %}
+                  <!-- If the user cannot add more properties to compare -->
+                  <span class="btn btn-danger disabled">Cannot add more properties to compare <a
+                      href="{% url 'compare_properties' %}" id="go_compare" class="btn btn-warning">Go to Compare</a></span>
+
+                  {% else %}
+                  <!-- If the property is not added by the logged-in user and not in the compare list -->
+                  <a href="{% url 'add_to_compare' property.id %}" id="add" class="btn btn-success">Add to Compare</a>
+                  {% endif %}
+                </div>
+              </div>
+              
         <div class="col-md-12">
 
           {% if property.days_to_sell < 30 %} <div class="row section-t3">
@@ -710,12 +725,12 @@
         </div>
       </div>
 
-      <div class="col-md-12">
+      <!-- <div class="col-md-12">
         <form method="post">
           {% csrf_token %}
           <button type="submit" name="compare">Add to Compare</button>
         </form>
-      </div>
+      </div> -->
 
       <div class="col-md-12">
 

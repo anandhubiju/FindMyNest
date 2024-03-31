@@ -288,11 +288,13 @@
           <a class="flex-sm-fill text-sm-center nav-link active" id="orders-all-tab" data-bs-toggle="tab"
             href="#orders-all" role="tab" aria-controls="orders-all" aria-selected="true">Application</a>
          <a class="flex-sm-fill text-sm-center nav-link" id="orders-paid-tab" data-bs-toggle="tab"
-            href="#orders-paid" role="tab" aria-controls="orders-paid" aria-selected="false">Paid</a>
+            href="#orders-paid" role="tab" aria-controls="orders-paid" aria-selected="false">Contacted</a>
           <a class="flex-sm-fill text-sm-center nav-link" id="orders-pending-tab" data-bs-toggle="tab"
-            href="#orders-pending" role="tab" aria-controls="orders-pending" aria-selected="false">Pending</a>
+            href="#orders-pending" role="tab" aria-controls="orders-pending" aria-selected="false">Plan selected</a>
           <a class="flex-sm-fill text-sm-center nav-link" id="orders-cancelled-tab" data-bs-toggle="tab"
             href="#orders-cancelled" role="tab" aria-controls="orders-cancelled" aria-selected="false">Cancelled</a> 
+            <a class="flex-sm-fill text-sm-center nav-link" id="orders-cancelled-tab" data-bs-toggle="tab"
+            href="#orders-cancelled" role="tab" aria-controls="orders-cancelled" aria-selected="false">Finished</a> 
            
         </nav>
 
@@ -323,6 +325,7 @@
                                 </thead>
                                 <tbody style="border: 2px solid rgb(186, 240, 186);">
                                     {% for home_interior in home_interiors %}
+                                    {% if home_interior.status == 'Applied' %}
                                     <tr>
                                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
                                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
@@ -334,12 +337,46 @@
                                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
                                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
                                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
-                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);"></td>
-                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186); ">
-                                          <a href="{% url 'updateStatus' user.id %}"><button
-                                            class="btn btn-primary"><i class="bi bi-pencil-square"></i></button></a>
-                                        </td>                                
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.status }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                                          <button class="btn btn-primary" onclick="openModal('{{ home_interior.id }}')"><i class="bi bi-pencil-square"></i></button>
+                                      </td>
+                                      <!-- Modal -->
+                                      <!-- update_status.html -->
+
+                                      <div class="modal" id="myModal">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                          
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                              <h4 class="modal-title">Update Status</h4>
+                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            
+                                            <!-- Modal Body -->
+                                            <div class="modal-body">
+                                              <form id="updateStatusForm" method="post">
+                                                {% csrf_token %}
+                                                <label for="status">Select Status:</label>
+                                                <select name="status" id="status" class="form-control">
+                                                  <option value="Contacted">Contacted the customer</option>
+                                                  <option value="PlanSelected">Plan selected</option>
+                                                  <option value="Cancelled">Cancelled</option>
+                                                  <option value="Finished">Finished</option>
+                                                  <!-- Add more options as needed -->
+                                                </select>
+                                                <br>
+                                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                              </form>
+                                            </div>
+                                            
+                                          </div>
+                                        </div>
+                                      </div>
+                                                                
                                        </tr>
+                                       {% endif %}
                                     {% endfor %}
                                 </tbody>
                             </table>                            
@@ -371,10 +408,13 @@
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Possession Timeline</th>
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Comments</th>
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
                     </tr>
                 </thead>
                 <tbody style="border: 2px solid rgb(186, 240, 186);">
                     {% for home_interior in home_interiors %}
+                    {% if home_interior.status == 'Contacted' %}
                     <tr>
                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
@@ -386,10 +426,49 @@
                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
                         <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
-                    </tr>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.status }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                          <button class="btn btn-primary" onclick="openModal('{{ home_interior.id }}')"><i class="bi bi-pencil-square"></i></button>
+                      </td>
+                      <!-- Modal -->
+                      <!-- update_status.html -->
+
+                      <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                          
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                              <h4 class="modal-title">Update Status</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                              <form id="updateStatusForm" method="post">
+                                {% csrf_token %}
+                                <label for="status">Select Status:</label>
+                                <select name="status" id="status" class="form-control">
+                                  <option value="Contacted">Contacted the customer</option>
+                                  <option value="PlanSelected">Plan selected</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                  <option value="Finished">Finished</option>
+                                  <!-- Add more options as needed -->
+                                </select>
+                                <br>
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                              </form>
+                            </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                                                
+                       </tr>
+                       {% endif %}
                     {% endfor %}
                 </tbody>
-            </table>     
+            </table>   
             </div>
             <!--//table-responsive-->
           </div>
@@ -397,44 +476,88 @@
         </div>
         <!--//app-card-->
       </div>
+      </div>
       <!--//tab-pane-->
 
       <div class="tab-pane fade" id="orders-pending" role="tabpanel" aria-labelledby="orders-pending-tab">
         <div class="app-card app-card-orders-table mb-5">
           <div class="app-card-body">
             <div class="table-responsive">
-              <table class="table mb-0 text-left">
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
                 <thead>
-                  <tr>
-                    <th class="cell">Order</th>
-                    <th class="cell">Product</th>
-                    <th class="cell">Customer</th>
-                    <th class="cell">Date</th>
-                    <th class="cell">Status</th>
-                    <th class="cell">Total</th>
-                    <th class="cell"></th>
-                  </tr>
+                    <tr>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">City</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Vendor</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Budget</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Scope</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Apartment Type</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Possession Timeline</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Comments</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                    </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell">#15345</td>
-                    <td class="cell">
-                      <span class="truncate">Consectetur adipiscing elit</span>
-                    </td>
-                    <td class="cell">Dylan Ambrose</td>
-                    <td class="cell">
-                      <span class="cell-data">16 Oct</span><span class="note">03:16 AM</span>
-                    </td>
-                    <td class="cell">
-                      <span class="badge bg-warning">Pending</span>
-                    </td>
-                    <td class="cell">$96.20</td>
-                    <td class="cell">
-                      <a class="btn-sm app-btn-secondary" href="#">View</a>
-                    </td>
-                  </tr>
+                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                    {% for home_interior in home_interiors %}
+                    {% if home_interior.status == 'PlanSelected' %}
+                    <tr>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.email }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.city }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.vendor }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.budget }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.scope }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.status }}</td>
+                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                          <button class="btn btn-primary" onclick="openModal('{{ home_interior.id }}')"><i class="bi bi-pencil-square"></i></button>
+                      </td>
+                      <!-- Modal -->
+                      <!-- update_status.html -->
+
+                      <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                          
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                              <h4 class="modal-title">Update Status</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                              <form id="updateStatusForm" method="post">
+                                {% csrf_token %}
+                                <label for="status">Select Status:</label>
+                                <select name="status" id="status" class="form-control">
+                                  <option value="Contacted">Contacted the customer</option>
+                                  <option value="PlanSelected">Plan selected</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                  <option value="Finished">Finished</option>
+                                  <!-- Add more options as needed -->
+                                </select>
+                                <br>
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                              </form>
+                            </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                                                
+                       </tr>
+                       {% endif %}
+                    {% endfor %}
                 </tbody>
-              </table>
+            </table>  
             </div>
             <!--//table-responsive-->
           </div>
@@ -447,38 +570,168 @@
         <div class="app-card app-card-orders-table mb-5">
           <div class="app-card-body">
             <div class="table-responsive">
-              <table class="table mb-0 text-left">
-                <thead>
-                  <tr>
-                    <th class="cell">Order</th>
-                    <th class="cell">Product</th>
-                    <th class="cell">Customer</th>
-                    <th class="cell">Date</th>
-                    <th class="cell">Status</th>
-                    <th class="cell">Total</th>
-                    <th class="cell"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell">#15342</td>
-                    <td class="cell">
-                      <span class="truncate">Justo feugiat neque</span>
-                    </td>
-                    <td class="cell">Reina Brooks</td>
-                    <td class="cell">
-                      <span class="cell-data">12 Oct</span><span class="note">04:23 PM</span>
-                    </td>
-                    <td class="cell">
-                      <span class="badge bg-danger">Cancelled</span>
-                    </td>
-                    <td class="cell">$59.00</td>
-                    <td class="cell">
-                      <a class="btn-sm app-btn-secondary" href="#">View</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
+                                <thead>
+                                    <tr>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">City</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Vendor</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Budget</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Scope</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Apartment Type</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Possession Timeline</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Comments</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                                    {% for home_interior in home_interiors %}
+                                    {% if home_interior.status == 'Cancelled' %}
+                                    <tr>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.email }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.city }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.vendor }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.budget }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.scope }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.status }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                                          <button class="btn btn-primary" onclick="openModal('{{ home_interior.id }}')"><i class="bi bi-pencil-square"></i></button>
+                                      </td>
+                                      <!-- Modal -->
+                                      <!-- update_status.html -->
+
+                                      <div class="modal" id="myModal">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                          
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                              <h4 class="modal-title">Update Status</h4>
+                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            
+                                            <!-- Modal Body -->
+                                            <div class="modal-body">
+                                              <form id="updateStatusForm" method="post">
+                                                {% csrf_token %}
+                                                <label for="status">Select Status:</label>
+                                                <select name="status" id="status" class="form-control">
+                                                  <option value="Contacted">Contacted the customer</option>
+                                                  <option value="PlanSelected">Plan selected</option>
+                                                  <option value="Cancelled">Cancelled</option>
+                                                  <option value="Finished">Finished</option>
+                                                  <!-- Add more options as needed -->
+                                                </select>
+                                                <br>
+                                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                              </form>
+                                            </div>
+                                            
+                                          </div>
+                                        </div>
+                                      </div>
+                                                                
+                                       </tr>
+                                       {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>  
+            </div>
+            <!--//table-responsive-->
+          </div>
+          <!--//app-card-body-->
+        </div>
+        <!--//app-card-->
+      </div>
+      <!--//tab-pane-->
+      <div class="tab-pane fade" id="orders-cancelled" role="tabpanel" aria-labelledby="orders-cancelled-tab">
+        <div class="app-card app-card-orders-table mb-5">
+          <div class="app-card-body">
+            <div class="table-responsive">
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
+                                <thead>
+                                    <tr>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">City</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Vendor</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Budget</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Scope</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Apartment Type</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Possession Timeline</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Comments</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                                    {% for home_interior in home_interiors %}
+                                    {% if home_interior.status == 'Finished' %}
+                                    <tr>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.email }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.city }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.vendor }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.budget }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.scope }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.status }}</td>
+                                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                                          <button class="btn btn-primary" onclick="openModal('{{ home_interior.id }}')"><i class="bi bi-pencil-square"></i></button>
+                                      </td>
+                                      <!-- Modal -->
+                                      <!-- update_status.html -->
+
+                                      <div class="modal" id="myModal">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                          
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                              <h4 class="modal-title">Update Status</h4>
+                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            
+                                            <!-- Modal Body -->
+                                            <div class="modal-body">
+                                              <form id="updateStatusForm" method="post">
+                                                {% csrf_token %}
+                                                <label for="status">Select Status:</label>
+                                                <select name="status" id="status" class="form-control">
+                                                  <option value="Contacted">Contacted the customer</option>
+                                                  <option value="PlanSelected">Plan selected</option>
+                                                  <option value="Cancelled">Cancelled</option>
+                                                  <option value="Finished">Finished</option>
+                                                  <!-- Add more options as needed -->
+                                                </select>
+                                                <br>
+                                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                              </form>
+                                            </div>
+                                            
+                                          </div>
+                                        </div>
+                                      </div>
+                                                                
+                                       </tr>
+                                       {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>  
             </div>
             <!--//table-responsive-->
           </div>
@@ -489,6 +742,7 @@
       <!--//tab-pane-->
     </div>
     <!--//tab-content-->
+    
   </div>
   <!--//container-fluid-->
   </div>
@@ -515,6 +769,16 @@
 
   <!-- Page Specific JS -->
   <script src="{% static 'assets/js/app.js' %}"></script>
+  <script>
+    function openModal(userId) {
+        // Assuming you are using Bootstrap modal
+        $('#myModal').modal('show');
+        
+        // Pass the user ID to the modal form action
+        $('#updateStatusForm').attr('action', '/update_status/' + userId + '/');
+    }
+</script>
+
 </body>
 
 </html>

@@ -71,6 +71,8 @@ def login(request):
                     return redirect(reverse('agentdashboard'))
                 elif request.user.user_type == CustomUser.EXECUTIVE:
                     return redirect(reverse('executivedashboard'))
+                elif request.user.user_type == CustomUser.EDITOR:
+                    return redirect(reverse('editordashboard'))
                 else:
                     return redirect('/')
             else:
@@ -502,6 +504,12 @@ def executivedashboard(request):
 
 
     return render(request, 'Executive_DashBoard.html')
+
+@login_required
+def editordashboard(request):
+    # Retrieve the agent's profile
+
+    return render(request, 'Editor_DashBoard.html')
 
 
 

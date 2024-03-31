@@ -23,4 +23,5 @@ urlpatterns = [
     path('add_to_compare/<int:property_id>/', views.add_to_compare, name='add_to_compare'),
     path('compare/', views.compare_properties, name='compare_properties'),
     path('remove_property/<int:property_id>/', views.remove_property, name='remove_property'),
+    # path('Customer/', include('Customer.urls')),
 ]

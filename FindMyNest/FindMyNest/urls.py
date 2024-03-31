@@ -25,4 +25,5 @@ urlpatterns = [
     path('',include('FindMyNestApp.urls')),
     path('register/',include('UserApp.urls')),
     path('addpropery/',include('Customer.urls')),
+    path('blogs/',include('Blog.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

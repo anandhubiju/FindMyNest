@@ -16,6 +16,7 @@ urlpatterns = [
     path('admindashboard/',views.admindashboard,name='admindashboard'),
     path('agentdashboard/',views.agentdashboard,name='agentdashboard'),
     path('executivedashboard/',views.executivedashboard,name='executivedashboard'),
+    path('editordashboard/',views.editordashboard,name='editordashboard'),
     path('propertys/',views.propertys,name='propertys'),
     path('users/',views.users,name='users'),
     path('subscription/',views.subscription,name='subscription'),

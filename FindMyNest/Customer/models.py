@@ -390,6 +390,8 @@ class LoanApplicant(models.Model):
     employment_type = models.CharField(max_length=100, choices=employment_type_choices)
     ongoing_emi = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     credit_score = models.IntegerField(blank=True, null=True)
+    status = models.CharField(max_length=20,default='Applied')
+
 
 class Nominee(models.Model):
     applicant = models.ForeignKey(LoanApplicant, on_delete=models.CASCADE)

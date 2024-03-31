@@ -16,6 +16,7 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+  
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/animate.css/animate.min.css' %}" rel="stylesheet">
@@ -184,6 +185,9 @@
           <li class="nav-item">
             <a class="nav-link " href="{% url 'agentlist' %}">Agent</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link " href="{% url 'blogs' %}">Blog</a>
+          </li>
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown"
@@ -199,13 +203,13 @@
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" href="#" id="serviceDropdown" role="button" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">Property Services</a>
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'addproperty' %}">Post Property</a>
               <a class="dropdown-item " href="{% url 'renForm' %}">Rent Agreement</a>
               <a class="dropdown-item " href="{% url 'home_interiors_form' %}">Home Interiors</a>
-              <a class="dropdown-item " href="{% url 'compare_properties' %}">compare properties</a>
+              <a class="dropdown-item " id="compare" href="{% url 'compare_properties' %}">compare properties</a>
             </div>
           </li>
 
@@ -972,43 +976,57 @@
 
     recognition.lang = 'en-US'; // Set recognition language
 
-    
-
     recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         console.log('Recognition result:', transcript);
-        console.log(isRecognizing);
+        
+        // Check if the transcript contains the word "home"
+        if (transcript.toLowerCase().includes('home')) {
+          window.location.href = '/'; // Redirect to the agent list URL
+      }
+      // Check if the transcript contains the word "property"
+      else if (transcript.toLowerCase().includes('agent')) {
+        window.location.href = '/agentlist/';
+         // Redirect to the property list URL
+    }
+    else if (transcript.toLowerCase().includes('property')) {
+      window.location.href = "http://127.0.0.1:8000/addpropery/";
+       // Redirect to the property list URL
+  }
+  else if (transcript.toLowerCase().includes('profile')) {
+    window.location.href = "http://127.0.0.1:8000/register/editprofile/";
+     // Redirect to the property list URL
+}
+  else if (transcript.toLowerCase().includes('about')) {
+    window.location.href = '/about/';
+     // Redirect to the property list URL
+}
     };
 
     recognition.onerror = (event) => {
         console.error('Recognition error:', event.error);
-        console.log(isRecognizing);
-
     };
 
+    let isRecognizing = false;
 
-        let isRecognizing = false;
+    recognition.onstart = () => {
+        startButton.innerHTML = '<i class="bi bi-mic-mute-fill text-white"></i>';
+        isRecognizing = true;
+    };
 
-recognition.onstart = () => {
-startButton.innerHTML = '<i class="bi bi-mic-mute-fill text-white"></i>';
+    recognition.onend = () => {
+        isRecognizing = false;
+    };
 
-  isRecognizing = true;
-  console.log(isRecognizing);
-};
-
-recognition.onend = () => {
-  isRecognizing = false;
-  console.log(isRecognizing);
-};
-
-startButton.addEventListener('click', () => {
-  if (isRecognizing) {
-    recognition.stop();
-  } else {
-    recognition.start();
-  }
+    startButton.addEventListener('click', () => {
+        if (isRecognizing) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
     });
 </script>
+
   <!-- <script>
   var options = {
      

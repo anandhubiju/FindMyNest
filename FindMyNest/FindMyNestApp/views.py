@@ -38,6 +38,8 @@ def index(request):
             return redirect(reverse('agentdashboard'))
         elif request.user.user_type == CustomUser.EXECUTIVE:
             return redirect(reverse('executivedashboard'))
+        elif request.user.user_type == CustomUser.EDITOR:
+            return redirect(reverse('editordashboard'))
         elif not request.user.phone_no:
             return render(request, 'profile_completion.html', {'user': request.user})
 
@@ -491,6 +493,48 @@ def add_executive(request):
 
     return render(request, 'add_executive.html')
 
+def add_editor(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', None)
+        last_name = request.POST.get('last_name', None)
+        email = request.POST.get('email', None)
+        phone = request.POST.get('phone', None)
+        password = generate_password(first_name)
+        username = generate_username(first_name, last_name)
+
+        if username and first_name and last_name and email and phone and password:
+
+            if User.objects.filter(username=username).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=username_is_already_registered')
+
+            elif User.objects.filter(email=email).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=email_is_already_registered')
+
+            elif User.objects.filter(phone_no=phone).exists():
+                return HttpResponseRedirect(reverse('add_agent') + '?alert=phone_no_is_already_registered')
+
+            else:
+                user = User(username=username, first_name=first_name, last_name=last_name, email=email, phone_no=phone)
+                user.set_password(password)
+                user.user_type = CustomUser.EDITOR
+                user.save()
+
+                user_profile = UserProfile(user=user)
+                user_profile.save()
+                
+
+
+                # Send welcome email
+                send_emailE(user.username,user.first_name,user.last_name,user.email,password)
+
+                response = HttpResponseRedirect(reverse('add_agent') + '?alert=registered')
+                response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+                response['Pragma'] = 'no-cache'
+                response['Expires'] = '0'
+                return response
+
+    return render(request, 'add_editor.html')
+
 def send_emailE(username, first_name, last_name, email, password):
     subject = 'Welcome to FindMyNest'
     message = f"Hello {first_name},\n\n"
@@ -532,3 +576,29 @@ def home_Loan_details(request):
     }
 
     return render(request, 'Home_loan_details.html', context)
+
+def update_status(request, user_id):
+    home_interiors = HomeInteriors.objects.all()
+    if request.method == 'POST':
+        # Update the status based on the selected option
+        status = request.POST.get('status')
+        user = get_object_or_404(HomeInteriors, pk=user_id)        
+        user.status = status
+        user.save()
+        home_interiors = HomeInteriors.objects.all()
+        return redirect('home_interiors_details')
+    context = {
+        'home_interiors': home_interiors,
+    }
+    return render(request, 'Home_interiors_details.html', context)
+
+
+def update_statusl(request, user_id):
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        loan_applicant = get_object_or_404(LoanApplicant, pk=user_id)
+        loan_applicant.status = status
+        loan_applicant.save()
+        return redirect('home_Loan_details')
+    else:
+        return redirect('home_Loan_details')  # Redirect in case of GET request

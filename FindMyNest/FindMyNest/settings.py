@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'UserApp',
     'jazzmin',
     'FindMyNestApp',
+    'Blog',
     'captcha',
     'social_django',
     'allauth',

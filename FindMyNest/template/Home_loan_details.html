@@ -285,11 +285,13 @@
           <a class="flex-sm-fill text-sm-center nav-link active" id="orders-all-tab" data-bs-toggle="tab"
             href="#orders-all" role="tab" aria-controls="orders-all" aria-selected="true">Application</a>
          <a class="flex-sm-fill text-sm-center nav-link" id="orders-paid-tab" data-bs-toggle="tab"
-            href="#orders-paid" role="tab" aria-controls="orders-paid" aria-selected="false">Paid</a>
+            href="#orders-paid" role="tab" aria-controls="orders-paid" aria-selected="false">Contacted</a>
           <a class="flex-sm-fill text-sm-center nav-link" id="orders-pending-tab" data-bs-toggle="tab"
-            href="#orders-pending" role="tab" aria-controls="orders-pending" aria-selected="false">Pending</a>
+            href="#orders-pending" role="tab" aria-controls="orders-pending" aria-selected="false">Collect the Documents</a>
           <a class="flex-sm-fill text-sm-center nav-link" id="orders-cancelled-tab" data-bs-toggle="tab"
             href="#orders-cancelled" role="tab" aria-controls="orders-cancelled" aria-selected="false">Cancelled</a> 
+            <a class="flex-sm-fill text-sm-center nav-link" id="orders-cancelled-tab" data-bs-toggle="tab"
+            href="#orders-cancelled" role="tab" aria-controls="orders-cancelled" aria-selected="false">Submitted to Bank</a> 
            
         </nav>
 
@@ -314,12 +316,15 @@
                                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Employment Type</th>
                                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Ongoing EMI</th>
                                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Credit Score</th>
+                                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
                                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
 
                                     </tr>
                                 </thead>
                                 <tbody style="border: 2px solid rgb(186, 240, 186);">
                                   {% for loan_applicant in loan_applicants %}
+                                  {% if loan_applicant.status == 'Applied' %}
+
                                   <tr>
                                       <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.name }}</td>
                                       <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.phone }}</td>
@@ -332,12 +337,41 @@
                                       <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.employment_type }}</td>
                                       <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.ongoing_emi }}</td>
                                       <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.credit_score }}</td>
-                                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">                                  
-                                          <a href="{% url 'updateStatus' user.id %}">
-                                              <button class="btn btn-primary"><i class="bi bi-pencil-square"></i></button>
-                                          </a>
-                                      </td>                                
+                                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.status }}</td>
+
+                                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                                        <button class="btn btn-primary" onclick="openModal('{{ loan_applicant.id }}')"><i class="bi bi-pencil-square"></i></button>
+                                    </td>
+                                    
+                                    <!-- Modal -->
+                                    <div class="modal" id="myModal">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">Update Status</h4>
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="updateStatusForm" method="post">
+                                                        {% csrf_token %}
+                                                        <label for="status">Select Status:</label>
+                                                        <select name="status" id="status" class="form-control">
+                                                            <option value="Contacted">Contacted</option>
+                                                            <option value="collect the Documents">collect the Documents</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                            <option value="Submitted to Bank">Submitted to Bank</option>
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                        <br>
+                                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                                              
                                   </tr>
+                                  {% endif %}
                                   {% endfor %}
                                 </tbody>
                             </table>                            
@@ -361,33 +395,73 @@
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">City</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Vendor</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Budget</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Scope</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Apartment Type</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Possession Timeline</th>
-                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Comments</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Property Buying City</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Monthly Income</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Loan Amount</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Age</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Gender</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Employment Type</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Ongoing EMI</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Credit Score</th>
                         <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
                     </tr>
                 </thead>
                 <tbody style="border: 2px solid rgb(186, 240, 186);">
-                    {% for home_interior in home_interiors %}
-                    <tr>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.name }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.phone }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.email }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.city }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.vendor }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.budget }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.scope }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.apartment_type }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.possession_timeline }}</td>
-                        <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ home_interior.comments }}</td>
-                    </tr>
-                    {% endfor %}
+                  {% for loan_applicant in loan_applicants %}
+                  {% if loan_applicant.status == 'Contacted' %}
+
+                  <tr>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.name }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.phone }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.email }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.property_buying_city }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.monthly_income }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.loan_amount }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.age }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.gender }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.employment_type }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.ongoing_emi }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.credit_score }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.status }}</td>
+
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                        <button class="btn btn-primary" onclick="openModal('{{ loan_applicant.id }}')"><i class="bi bi-pencil-square"></i></button>
+                    </td>
+                    
+                    <!-- Modal -->
+                    <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Update Status</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updateStatusForm" method="post">
+                                        {% csrf_token %}
+                                        <label for="status">Select Status:</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="Contacted">Contacted</option>
+                                            <option value="collect the Documents">collect the Documents</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Submitted to Bank">Submitted to Bank</option>
+                                            <!-- Add more options as needed -->
+                                        </select>
+                                        <br>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                                  
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
                 </tbody>
-            </table>     
+            </table> 
             </div>
             <!--//table-responsive-->
           </div>
@@ -395,44 +469,167 @@
         </div>
         <!--//app-card-->
       </div>
-      <!--//tab-pane-->
-
-      <div class="tab-pane fade" id="orders-pending" role="tabpanel" aria-labelledby="orders-pending-tab">
+      <div class="tab-pane fade" id="orders-paid" role="tabpanel" aria-labelledby="orders-paid-tab">
         <div class="app-card app-card-orders-table mb-5">
           <div class="app-card-body">
             <div class="table-responsive">
-              <table class="table mb-0 text-left">
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
                 <thead>
-                  <tr>
-                    <th class="cell">Order</th>
-                    <th class="cell">Product</th>
-                    <th class="cell">Customer</th>
-                    <th class="cell">Date</th>
-                    <th class="cell">Status</th>
-                    <th class="cell">Total</th>
-                    <th class="cell"></th>
-                  </tr>
+                    <tr>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Property Buying City</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Monthly Income</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Loan Amount</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Age</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Gender</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Employment Type</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Ongoing EMI</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Credit Score</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                    </tr>
                 </thead>
-                <tbody>
+                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                  {% for loan_applicant in loan_applicants %}
+                  {% if loan_applicant.status == 'collect the Documents' %}
+
                   <tr>
-                    <td class="cell">#15345</td>
-                    <td class="cell">
-                      <span class="truncate">Consectetur adipiscing elit</span>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.name }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.phone }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.email }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.property_buying_city }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.monthly_income }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.loan_amount }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.age }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.gender }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.employment_type }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.ongoing_emi }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.credit_score }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.status }}</td>
+
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                        <button class="btn btn-primary" onclick="openModal('{{ loan_applicant.id }}')"><i class="bi bi-pencil-square"></i></button>
                     </td>
-                    <td class="cell">Dylan Ambrose</td>
-                    <td class="cell">
-                      <span class="cell-data">16 Oct</span><span class="note">03:16 AM</span>
-                    </td>
-                    <td class="cell">
-                      <span class="badge bg-warning">Pending</span>
-                    </td>
-                    <td class="cell">$96.20</td>
-                    <td class="cell">
-                      <a class="btn-sm app-btn-secondary" href="#">View</a>
-                    </td>
+                    
+                    <!-- Modal -->
+                    <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Update Status</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updateStatusForm" method="post">
+                                        {% csrf_token %}
+                                        <label for="status">Select Status:</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="Contacted">Contacted</option>
+                                            <option value="collect the Documents">collect the Documents</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Submitted to Bank">Submitted to Bank</option>
+                                            <!-- Add more options as needed -->
+                                        </select>
+                                        <br>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                                 
                   </tr>
+                  {% endif %}
+                  {% endfor %}
                 </tbody>
-              </table>
+            </table> 
+            </div>
+            <!--//table-responsive-->
+          </div>
+          <!--//app-card-body-->
+        </div>
+        <!--//app-card-->
+      </div>
+      <div class="tab-pane fade" id="orders-paid" role="tabpanel" aria-labelledby="orders-paid-tab">
+        <div class="app-card app-card-orders-table mb-5">
+          <div class="app-card-body">
+            <div class="table-responsive">
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
+                <thead>
+                    <tr>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Property Buying City</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Monthly Income</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Loan Amount</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Age</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Gender</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Employment Type</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Ongoing EMI</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Credit Score</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                    </tr>
+                </thead>
+                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                  {% for loan_applicant in loan_applicants %}
+                  {% if loan_applicant.status == 'Cancelled' %}
+
+                  <tr>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.name }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.phone }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.email }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.property_buying_city }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.monthly_income }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.loan_amount }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.age }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.gender }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.employment_type }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.ongoing_emi }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.credit_score }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.status }}</td>
+
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                        <button class="btn btn-primary" onclick="openModal('{{ loan_applicant.id }}')"><i class="bi bi-pencil-square"></i></button>
+                    </td>
+                    
+                    <!-- Modal -->
+                    <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Update Status</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updateStatusForm" method="post">
+                                        {% csrf_token %}
+                                        <label for="status">Select Status:</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="Contacted">Contacted</option>
+                                            <option value="collect the Documents">collect the Documents</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Submitted to Bank">Submitted to Bank</option>
+                                            <!-- Add more options as needed -->
+                                        </select>
+                                        <br>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                                  
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                </tbody>
+            </table> 
             </div>
             <!--//table-responsive-->
           </div>
@@ -445,38 +642,79 @@
         <div class="app-card app-card-orders-table mb-5">
           <div class="app-card-body">
             <div class="table-responsive">
-              <table class="table mb-0 text-left">
+              <table class="table app-table-hover mb-0 text-left" id="home-interiors-table" style="font-size: 16px; border: .5px solid rgb(186, 240, 186);">
                 <thead>
-                  <tr>
-                    <th class="cell">Order</th>
-                    <th class="cell">Product</th>
-                    <th class="cell">Customer</th>
-                    <th class="cell">Date</th>
-                    <th class="cell">Status</th>
-                    <th class="cell">Total</th>
-                    <th class="cell"></th>
-                  </tr>
+                    <tr>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Name</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Phone</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Email</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Property Buying City</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Monthly Income</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Loan Amount</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Age</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Gender</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Employment Type</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Ongoing EMI</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Credit Score</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Status</th>
+                        <th class="cell" style="background-color: rgb(6, 146, 6); color: white;">Change Status</th>
+
+                    </tr>
                 </thead>
-                <tbody>
+                <tbody style="border: 2px solid rgb(186, 240, 186);">
+                  {% for loan_applicant in loan_applicants %}
+                  {% if loan_applicant.status == 'Submitted to Bank' %}
+
                   <tr>
-                    <td class="cell">#15342</td>
-                    <td class="cell">
-                      <span class="truncate">Justo feugiat neque</span>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.name }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.phone }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.user.email }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.property_buying_city }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.monthly_income }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.loan_amount }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.age }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.gender }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.employment_type }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.ongoing_emi }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.credit_score }}</td>
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">{{ loan_applicant.status }}</td>
+
+                      <td class="cell" style="border: .5px solid rgb(186, 240, 186);">
+                        <button class="btn btn-primary" onclick="openModal('{{ loan_applicant.id }}')"><i class="bi bi-pencil-square"></i></button>
                     </td>
-                    <td class="cell">Reina Brooks</td>
-                    <td class="cell">
-                      <span class="cell-data">12 Oct</span><span class="note">04:23 PM</span>
-                    </td>
-                    <td class="cell">
-                      <span class="badge bg-danger">Cancelled</span>
-                    </td>
-                    <td class="cell">$59.00</td>
-                    <td class="cell">
-                      <a class="btn-sm app-btn-secondary" href="#">View</a>
-                    </td>
+                    
+                    <!-- Modal -->
+                    <div class="modal" id="myModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Update Status</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updateStatusForm" method="post">
+                                        {% csrf_token %}
+                                        <label for="status">Select Status:</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="Contacted">Contacted</option>
+                                            <option value="collect the Documents">collect the Documents</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Submitted to Bank">Submitted to Bank</option>
+                                            <!-- Add more options as needed -->
+                                        </select>
+                                        <br>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                                 
                   </tr>
+                  {% endif %}
+                  {% endfor %}
                 </tbody>
-              </table>
+            </table> 
             </div>
             <!--//table-responsive-->
           </div>
@@ -513,6 +751,13 @@
 
   <!-- Page Specific JS -->
   <script src="{% static 'assets/js/app.js' %}"></script>
+  <script>
+    function openModal(userId) {
+        $('#myModal').modal('show');
+        $('#updateStatusForm').attr('action', '/update_statusl/' + userId + '/');
+    }
+</script>
+
 </body>
 
 </html>

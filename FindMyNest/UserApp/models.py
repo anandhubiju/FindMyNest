@@ -8,12 +8,14 @@ class CustomUser(AbstractUser):
     ADMIN = 2
     AGENT =3
     EXECUTIVE =4
+    EDITOR =5
 
     ROLE_CHOICE = (
         (CUSTOMER, 'Customer'),
         (ADMIN,'Admin'),
         (AGENT,'Agent'),
         (EXECUTIVE,'Executive'),  
+        (EDITOR,'Editor'), 
     )
 
 
